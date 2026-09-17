@@ -196,6 +196,11 @@ describe('Auth module (registro, login, roles)', () => {
   });
 
   describe('Misceleaneo', () => {
+    it('responde 200 en la raiz (para spiders/health checks externos)', async () => {
+      const res = await request(app).get('/');
+      expect(res.status).toBe(200);
+    });
+
     it('responde 200 en /health', async () => {
       const res = await request(app).get('/health');
       expect(res.status).toBe(200);

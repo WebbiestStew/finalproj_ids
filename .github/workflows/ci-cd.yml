@@ -50,6 +50,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Calcular nombre de imagen en minusculas
+        run: echo "IMAGE_NAME=$(echo 'ghcr.io/${{ github.repository }}-backend' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
+
       - name: Login a GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -63,21 +66,34 @@ jobs:
           context: backend
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}-backend:latest
-            ghcr.io/${{ github.repository }}-backend:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
   deploy-test-env:
     name: Despliegue automatico a entorno de prueba (smoke test)
     needs: build-and-push
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     steps:
+      - name: Calcular nombre de imagen en minusculas
+        run: echo "IMAGE_NAME=$(echo 'ghcr.io/${{ github.repository }}-backend' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
+
+      - name: Login a GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Ejecutar imagen publicada en un entorno de prueba efimero
         run: |
           docker run -d --name dauto-test \
             -p 3000:3000 \
             -e JWT_SECRET=ci-smoke-test-secret \
-            ghcr.io/${{ github.repository }}-backend:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Esperar a que el servicio este listo
         run: |

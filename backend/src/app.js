@@ -30,6 +30,9 @@ function createApp({ dbPath } = {}) {
   app.use('/api/auth/login', authLimiter);
   app.use('/api/auth/register', authLimiter);
 
+  app.get('/', (req, res) =>
+    res.status(200).json({ service: 'dauto-backend', status: 'ok', docs: '/health' })
+  );
   app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
   app.use('/api/auth', createAuthRoutes(authController));
 

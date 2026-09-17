@@ -32,12 +32,12 @@ requerido antes de catálogo, financiamiento, citas y reportes. Ubicado en `back
 
 | Métrica    | Resultado | Umbral exigido |
 |------------|-----------|-----------------|
-| Statements | 98.26%    | 80%             |
+| Statements | 98.29%    | 80%             |
 | Branches   | 82.35%    | 80%             |
-| Functions  | 95.83%    | 80%             |
-| Lines      | 98.18%    | 80%             |
+| Functions  | 96.00%    | 80%             |
+| Lines      | 98.21%    | 80%             |
 
-26 pruebas (`backend/tests/`) cubren: registro válido/ inválido por rol, duplicados,
+27 pruebas (`backend/tests/`) cubren: registro válido/ inválido por rol, duplicados,
 login correcto/incorrecto, middleware de autenticación y de roles (unitario y de
 integración vía `supertest`), manejo de rutas desconocidas, y dos pruebas de
 seguridad negativa (inyección SQL y XSS almacenado, ver 5.1). El umbral de 80% está
@@ -112,27 +112,58 @@ repositorio configura `SONAR_TOKEN` y la variable `SONAR_ORGANIZATION`.
 
 Remediación: se extrajeron los literales duplicados (`/api/auth/register`,
 `/api/auth/login`, `Authorization`, etc.) a constantes en `tests/auth.test.js`,
-eliminando la deuda técnica detectada sin afectar la cobertura (se mantuvo en 98.26%).
+eliminando la deuda técnica detectada sin afectar la cobertura (se mantuvo en 98.29%).
+
+**Duplicación de código (`npm run duplication`, motor `jscpd`):** 0.87% de líneas
+duplicadas (5 de 577 líneas, 1 clon detectado entre el manejo de errores de
+validación de `register` y `login` en `authController.js`). Está muy por debajo del
+3% que suele usarse como umbral de alerta en SonarQube; se documenta pero no se
+extrae a un helper porque son solo 5 líneas de manejo de error repetido entre dos
+funciones — extraerlo agregaría una capa de indirección por un ahorro marginal.
 
 `npm audit` sobre las dependencias de producción y desarrollo: **0 vulnerabilidades**
 conocidas al momento de este avance.
+
+> **Nota:** estas métricas se obtuvieron con `eslint-plugin-sonarjs` + `jscpd` en
+> lugar de una instancia real de SonarQube/SonarCloud (requiere una cuenta externa
+> que no existía al momento de este avance). El job `code-quality` en
+> `security-scan.yml` ya está listo para producir el reporte oficial de SonarCloud
+> (rating de mantenibilidad, deuda técnica en horas, cobertura combinada) en cuanto
+> se configuren `SONAR_TOKEN` y la variable de repositorio `SONAR_ORGANIZATION`.
 
 ---
 
 ## 6. Cierre y evaluación
 
-### 6.1 Planificado vs. ejecutado
+### 6.1 Línea de tiempo planificada vs. real
+
+El cronograma original (sección 3.2) programaba el **Sprint 2 — "Módulo de
+autenticación y catálogo de vehículos"** del 28 de septiembre al 19 de octubre de
+2026 (21 días), precedido por el Sprint 1 de diseño UI/UX (14–28 sept).
+
+| Hito | Fecha planificada (Gantt, sección 3.2) | Fecha real | Diferencia |
+|---|---|---|---|
+| Inicio de Sprint 2 (autenticación) | 28-sep-2026 | — | — |
+| Módulo de autenticación funcional + pruebas ≥80% | Dentro de la ventana 28-sep → 19-oct-2026 | **17-sep-2026** | **11 días antes** de la fecha de inicio planificada del propio Sprint 2 |
+| Pipeline CI/CD en verde (lint + tests + build + deploy) | Se asumía verde desde el primer push (implícito en el checklist de 4h) | Primer push a `main` (17-sep-2026) con **ambos workflows en rojo**; corregido el mismo día tras diagnóstico | +0 días de calendario, pero reveló que "implementar CI/CD" y "tener CI/CD funcionando en verde" no son el mismo hito — ver lección 6.2.4 |
+| Mitad de Sprint 2 pendiente (catálogo de vehículos) | 28-sep → 19-oct-2026 | No iniciado | Sin desviación aún — está dentro de su ventana original |
+
+La autenticación se adelantó al periodo del Sprint 1 en vez de consumir tiempo del
+Sprint 2, dejando la ventana completa del 28-sep al 19-oct disponible para el
+catálogo de vehículos sin comprometer el resto del cronograma.
+
+### 6.2 Planificado vs. ejecutado (alcance)
 
 | Punto del checklist | Planificado | Ejecutado | Desviación |
 |---|---|---|---|
-| Módulo básico + JWT/roles (4h) | Módulo de autenticación con roles admin/usuario | Implementado con 3 roles (`admin`/`concesionaria`/`comprador`) para reflejar el dominio real de DAuto (sección 1.2), no solo admin/usuario genérico | Ampliación menor de alcance, sin costo adicional relevante |
-| Cobertura ≥80% (Jest) | ≥80% | 98.26% statements / 82.35% branches | Por encima de lo pedido |
-| CI/CD con despliegue automático a entorno de prueba | Despliegue a un entorno de prueba persistente | Build + push a GHCR + smoke test automatizado en contenedor efímero de CI | **Desviación real:** no había cuenta de hosting de prueba disponible; se sustituyó por un entorno efímero dentro del propio pipeline |
+| Módulo básico + JWT/roles (4h) | Módulo de autenticación con roles admin/usuario | Implementado con 3 roles (`admin`/`concesionaria`/`comprador`) para reflejar el dominio real de DAuto (sección 1.2), no solo admin/usuario genérico, más un frontend React (SPA) que consume el módulo end-to-end (registro, login, panel por rol) | Ampliación de alcance (frontend no pedido explícitamente en el checklist de 4h) para poder validar el módulo de forma funcional, no solo por API |
+| Cobertura ≥80% (Jest) | ≥80% | 98.29% statements / 82.35% branches | Por encima de lo pedido |
+| CI/CD con despliegue automático a entorno de prueba | Pipeline verde desde el primer push | Build + push a GHCR + smoke test automatizado en contenedor efímero de CI, **pero el primer push quedó en rojo** (tag de Docker en mayúsculas + falta de permiso `issues: write`); corregido el mismo día — ver lección 6.3.4 | **Desviación real doble:** (1) no había cuenta de hosting de prueba disponible, se sustituyó por un entorno efímero dentro del propio pipeline; (2) el pipeline no pasó en el primer intento real en GitHub Actions |
 | Escaneo OWASP ZAP | Escaneo de XSS/SQLi | ZAP baseline automatizado en GitHub Actions (requiere Docker, no disponible localmente) + pruebas manuales dirigidas ejecutadas localmente | Se dividió en dos vías por la limitación de entorno; ambas se completaron |
 | SonarQube (deuda técnica, code smells) | Análisis con SonarQube | `eslint-plugin-sonarjs` (motor de reglas equivalente) ejecutado y remediado localmente; job de SonarCloud dejado listo mas no activado | **Desviación real:** sin servidor/cuenta SonarQube disponible en este entorno |
 | Informe de cierre | Comparación + lecciones + mejora continua | Este documento | Sin desviación |
 
-### 6.2 Lecciones aprendidas
+### 6.3 Lecciones aprendidas
 
 1. **Validar solo el formato de entrada no basta.** La protección contra SQLi vino
    gratis por usar consultas parametrizadas + `zod`, pero el mismo `zod` dejaba
@@ -151,20 +182,25 @@ conocidas al momento de este avance.
    convierte una buena práctica en una regla que no se puede saltar** — cualquier
    PR que baje de 80% rompe el pipeline automáticamente, sin depender de que
    alguien se acuerde de revisarlo.
+4. **"Escribir" un pipeline CI/CD no es lo mismo que "tener" un pipeline CI/CD.**
+   El primer push a `main` (17-sep-2026) dejó los dos workflows en rojo por dos
+   causas triviales pero reales: (a) `docker/build-push-action` rechazó el tag
+   `ghcr.io/WebbiestStew/finalproj_ids-backend` porque Docker exige nombres de
+   repositorio en minúsculas, y (b) `zaproxy/action-baseline` intentó abrir un
+   issue de GitHub con el reporte de hallazgos y falló con `403 Resource not
+   accessible by integration` porque el job no tenía el permiso `issues: write`.
+   Ninguno de los dos se detecta leyendo el YAML — solo se ven ejecutando el
+   pipeline de verdad en GitHub Actions. Lección: un pipeline no cuenta como
+   "funcionando correctamente" hasta que corrió en verde al menos una vez en el
+   entorno real, no en el editor.
 
-### 6.3 Plan de mejora continua
+### 6.4 Plan de mejora continua
 
-- Activar SonarCloud con token real y agregar el badge de cobertura/deuda técnica
-  al README una vez el repositorio esté en GitHub.
-- Sustituir el job `deploy-test-env` efímero por un despliegue a un host persistente
-  (Render/Fly.io/EC2) en cuanto se disponga de una cuenta de prueba, reutilizando
-  la misma imagen ya publicada en GHCR.
-- Ampliar el escaneo de ZAP de *baseline* a *full scan* autenticado (con un usuario
-  de prueba) antes del cierre de cada sprint, no solo en cada push.
-- Extender este mismo módulo de autenticación al de Catálogo/Inventario (Sprint 2
-  del cronograma original) reutilizando el middleware `authenticate`/`requireRole`.
-- Explorar (siguiendo la lógica del ejemplo del propio checklist sobre predicción de
-  donaciones, adaptado al dominio de DAuto) un modelo de IA para **predecir
-  probabilidad de cierre de venta por prospecto** o sugerir precio de referencia
-  por vehículo según kilometraje/año/zona, usando los reportes de ventas del
-  módulo de Reportes (Sprint 5) como fuente de datos de entrenamiento.
+| Acción | Meta medible | Fecha objetivo |
+|---|---|---|
+| Activar SonarCloud (token + `SONAR_ORGANIZATION`) | Dashboard público con *maintainability rating* A y 0 *code smells* nuevos por PR | Antes de iniciar Sprint 3 (19-oct-2026) |
+| Sustituir `deploy-test-env` efímero por host persistente (Render/Fly/EC2) | URL de staging con uptime verificable, reutilizando la imagen ya publicada en GHCR | Fin de Sprint 2 (19-oct-2026) |
+| Ampliar ZAP de *baseline* a *full scan* autenticado | 0 alertas de severidad "High"/"Medium" sobre `/api/auth/*` | Antes del cierre de Sprint 6 — QA (10-dic-2026) |
+| Extender el middleware `authenticate`/`requireRole` al módulo de Catálogo/Inventario | Endpoints de catálogo con cobertura de pruebas ≥80%, igual que auth | Durante Sprint 2, ventana 28-sep → 19-oct-2026 |
+| Agregar chequeo de duplicación de código (`jscpd` o equivalente) al pipeline | Duplicación de código &lt;3% en `backend/src` | Junto con la activación de SonarCloud |
+| **Innovación:** modelo de IA para **predecir probabilidad de cierre de venta por prospecto** y sugerir precio de referencia por vehículo (kilometraje/año/zona), entrenado con los datos del módulo de Reportes | Prototipo offline con AUC ≥0.7 sobre datos históricos simulados | Sprint 5 — Reportes (16–30-nov-2026), como spike técnico igual que R1 en la matriz de riesgos |
