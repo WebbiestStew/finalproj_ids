@@ -77,6 +77,9 @@ jobs:
     permissions:
       contents: read
       packages: read
+    defaults:
+      run:
+        working-directory: .
     steps:
       - name: Calcular nombre de imagen en minusculas
         run: echo "IMAGE_NAME=$(echo 'ghcr.io/${{ github.repository }}-backend' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
