@@ -1,0 +1,98 @@
+name: CI/CD - DAuto Backend
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+defaults:
+  run:
+    working-directory: backend
+
+jobs:
+  lint-and-test:
+    name: Lint, unit tests y cobertura (>=80%)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Lint (ESLint + sonarjs)
+        run: npm run lint
+
+      - name: Pruebas unitarias con cobertura
+        run: npm run test:coverage
+
+      - name: Publicar reporte de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: backend/coverage
+
+  build-and-push:
+    name: Build y push de imagen Docker (GHCR)
+    needs: lint-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login a GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build y push
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}-backend:latest
+            ghcr.io/${{ github.repository }}-backend:${{ github.sha }}
+
+  deploy-test-env:
+    name: Despliegue automatico a entorno de prueba (smoke test)
+    needs: build-and-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ejecutar imagen publicada en un entorno de prueba efimero
+        run: |
+          docker run -d --name dauto-test \
+            -p 3000:3000 \
+            -e JWT_SECRET=ci-smoke-test-secret \
+            ghcr.io/${{ github.repository }}-backend:${{ github.sha }}
+
+      - name: Esperar a que el servicio este listo
+        run: |
+          for i in $(seq 1 15); do
+            if curl -sf http://localhost:3000/health; then exit 0; fi
+            sleep 2
+          done
+          echo "El servicio no respondio a tiempo" && docker logs dauto-test && exit 1
+
+      - name: Validar flujo de registro/login en el entorno de prueba
+        run: |
+          curl -sf -X POST http://localhost:3000/api/auth/register \
+            -H "Content-Type: application/json" \
+            -d '{"name":"Smoke Test","email":"smoke@example.com","password":"password123","role":"comprador"}'
+
+      - name: Logs del contenedor
+        if: always()
+        run: docker logs dauto-test

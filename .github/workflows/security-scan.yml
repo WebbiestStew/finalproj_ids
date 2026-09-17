@@ -1,0 +1,72 @@
+name: Seguridad y calidad de codigo
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  zap-baseline:
+    name: OWASP ZAP baseline scan (XSS / SQLi / headers)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalar dependencias
+        working-directory: backend
+        run: npm ci
+
+      - name: Levantar el servidor para el escaneo
+        working-directory: backend
+        env:
+          JWT_SECRET: zap-scan-secret
+          DB_PATH: ':memory:'
+          PORT: '3000'
+        run: |
+          nohup node src/server.js > server.log 2>&1 &
+          for i in $(seq 1 15); do
+            curl -sf http://localhost:3000/health && break
+            sleep 1
+          done
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: 'http://localhost:3000'
+          fail_action: false
+          artifact_name: 'zap-baseline-report'
+
+  code-quality:
+    name: SonarCloud (deuda tecnica / code smells)
+    runs-on: ubuntu-latest
+    if: ${{ vars.SONAR_ORGANIZATION != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalar dependencias y correr cobertura (para que Sonar la importe)
+        working-directory: backend
+        run: |
+          npm ci
+          npm run test:coverage
+
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
