@@ -13,24 +13,29 @@ maquillar.
 
 ## Qué hay hoy
 
-Lo único implementado hasta ahora es el módulo de **autenticación**: registro y
-login con JWT, tres roles (`admin`, `concesionaria`, `comprador`), y un panel que
-cambia según quién entró — un admin ve la lista de usuarios registrados, todos los
-demás ven un "esto llega después".
+Dos módulos funcionando de punta a punta:
 
-El resto del alcance (catálogo de vehículos, simulador de financiamiento,
-geolocalización de sucursales, citas para test drive, reportes de ventas) está en
-`adv_pr.pdf`, planeado por sprints, pero sin una línea de código todavía. Si estás
-leyendo esto buscando esas funciones, no las vas a encontrar — perdón por el spoiler.
+- **Cuentas:** registro y login con JWT, tres roles (`admin`, `concesionaria`, `comprador`) y un
+  panel que cambia según quién entró.
+- **Catálogo de vehículos:** cualquiera puede ver los autos y filtrarlos por marca, carrocería,
+  precio y año (los filtros viven en la URL, así que un enlace comparte la búsqueda). Cada
+  concesionaria publica y administra su propio inventario — editar, apartar, marcar como vendido
+  o eliminar — y un auto vendido deja de aparecer en el catálogo.
+
+Todavía no hay fotos: cada auto se muestra con una ilustración cuyo tipo de carrocería y color
+salen de sus datos, y la ficha lo dice. El resto del alcance (simulador de financiamiento,
+geolocalización de sucursales, citas para test drive, reportes de ventas) está en `adv_pr.pdf`,
+planeado por sprints, pero sin una línea de código todavía.
 
 ## Cómo se ve
 
-El frontend le mete bastante cuidado al detalle de interacción — nada dramático,
-pero los botones responden al instante al presionarlos, el menú del usuario se abre
-con un resorte físico anclado al avatar (no un fade genérico), y cambiar de página
-no es un corte seco. Si te interesa el por qué, está documentado en el código
-mismo (`frontend/src/App.jsx`, `frontend/src/components/UserMenu.jsx`) con
-comentarios que citan de dónde sale cada decisión.
+El diseño sigue el lenguaje de Apple, adaptado a la web: fuente del sistema, un solo
+color de acento, modo claro y oscuro automático, barra y menú translúcidos, y un
+auto dibujado en línea que se traza solo al abrir la página. Los colores de texto
+cumplen WCAG AA — medido con un script, no a ojo — y todo respeta las preferencias
+de movimiento, transparencia y contraste reducidos. El movimiento (menú de usuario,
+selector de rol, transiciones de página) usa resortes en vez de animaciones fijas.
+Los detalles y el por qué están en [`frontend/README.md`](frontend/README.md).
 
 ## Cómo correrlo
 
@@ -42,6 +47,7 @@ Necesitas dos terminales — el backend y el frontend son proyectos separados.
 cd backend
 cp .env.example .env   # y ajusta JWT_SECRET
 npm install
+node scripts/seedDemo.js   # opcional: 12 autos y 2 concesionarias demo para ver el catálogo
 npm run dev
 ```
 
@@ -56,24 +62,27 @@ npm install
 npm run dev
 ```
 
-Levanta en `http://localhost:5173` y ya apunta al backend de arriba. Sin el
-backend corriendo, vas a ver "Failed to fetch" en cuanto intentes registrarte —
-no es un bug, es que falta la otra mitad prendida.
+Levanta en `http://localhost:5173` y ya apunta al backend de arriba (el CORS del backend
+en desarrollo solo acepta ese origen). Sin el backend corriendo vas a ver "No se pudo
+conectar con el servidor" al registrarte — no es un bug, falta la otra mitad prendida.
 
 ## Pruebas y CI/CD
 
-El backend tiene 27 pruebas unitarias con Jest, cobertura arriba del 98% (el
-mínimo pedido era 80%), y un pipeline en GitHub Actions que corre lint + pruebas +
-build de Docker + un despliegue de humo en cada push a `main`. Hay otro workflow
-separado con un escaneo de seguridad (OWASP ZAP) y análisis de calidad de código.
-Ambos están en verde ahora mismo — no siempre lo estuvieron, y la historia de qué
-se rompió y cómo se arregló está en el informe de cierre.
+El backend tiene 104 pruebas con Jest y cobertura de 100% en líneas (el mínimo pedido
+era 80%); el frontend tiene 132 con Vitest y ~98%. El pipeline de GitHub Actions corre,
+en cada push a `main`, auditoría de dependencias, lint, pruebas con cobertura, build
+del frontend, build de Docker y un despliegue de humo del contenedor publicado. Hay otro
+workflow con un escaneo de seguridad (OWASP ZAP). No siempre estuvieron en verde — la
+historia de qué se rompió y cómo se arregló está en el informe de cierre.
 
 ```bash
-cd backend
-npm run test:coverage
-npm run lint
+cd backend  && npm run test:coverage && npm run lint
+cd frontend && npm run test:coverage && npm run lint
 ```
+
+Una cosa que no me atrevo a afirmar: que aguante 1,000 usuarios concurrentes. Lo medí
+y el cuello de botella es el hash de contraseñas (~4 logins/s por instancia con el costo
+por defecto); los números y el plan están en el informe.
 
 ## Estructura
 

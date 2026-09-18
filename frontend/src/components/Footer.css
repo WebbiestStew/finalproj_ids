@@ -1,0 +1,19 @@
+.footer {
+  margin-top: auto;
+  border-top: 1px solid var(--line);
+  padding: 1.5rem 0 2rem;
+  color: var(--text-2);
+  font-size: 0.8125rem;
+  letter-spacing: 0;
+}
+
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 2rem;
+}
+
+.footer a {
+  text-decoration: underline;
+}

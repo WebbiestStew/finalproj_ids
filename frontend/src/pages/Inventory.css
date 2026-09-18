@@ -1,0 +1,132 @@
+.inventory {
+  padding-top: clamp(2rem, 6vw, 4rem);
+  padding-bottom: 5rem;
+  max-width: 62rem;
+}
+
+.inventory-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.inventory-head h1 {
+  margin-top: 0.25rem;
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.inventory-sub {
+  margin-top: 0.5rem;
+  color: var(--text-2);
+}
+
+.inventory-list {
+  padding: 0;
+  list-style: none;
+}
+
+.inventory-row {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+}
+
+.inventory-row + .inventory-row {
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width: 46rem) {
+  .inventory-row {
+    grid-template-columns: 5rem minmax(0, 1fr);
+  }
+
+  .inventory-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+.inventory-title {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.014em;
+}
+
+.inventory-title:hover {
+  text-decoration: underline;
+}
+
+.inventory-main p {
+  color: var(--text-2);
+  font-size: 0.9375rem;
+}
+
+.inventory-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.status-select {
+  height: 2rem;
+  padding: 0 1.75rem 0 0.75rem;
+  border: 0;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+}
+
+.status-disponible {
+  background-color: var(--success-soft);
+  color: var(--success-text);
+}
+
+.status-apartado {
+  background-color: var(--warning-soft);
+  color: var(--warning);
+}
+
+.status-vendido {
+  background-color: var(--seg-bg);
+  color: var(--text);
+}
+
+@media (pointer: coarse) {
+  .status-select {
+    height: 2.75rem;
+  }
+}
+
+.confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.btn-danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger) 20%, transparent);
+}
+
+.btn-quiet-danger {
+  color: var(--danger);
+}

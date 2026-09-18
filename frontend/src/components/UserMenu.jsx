@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
+import Icon from './Icon';
 import RoleBadge from './RoleBadge';
 import './UserMenu.css';
 
@@ -33,6 +34,7 @@ export default function UserMenu() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
+  const triggerRef = useRef(null);
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
@@ -42,7 +44,10 @@ export default function UserMenu() {
       }
     }
     function handleKey(e) {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
     }
     document.addEventListener('mousedown', handleClick);
     document.addEventListener('keydown', handleKey);
@@ -68,27 +73,21 @@ export default function UserMenu() {
         type="button"
         className="user-menu-trigger"
         onClick={() => setOpen((v) => !v)}
-        aria-haspopup="menu"
+        ref={triggerRef}
+        aria-controls="user-menu-panel"
+        aria-label={`Menú de ${user.name}`}
         aria-expanded={open}
       >
         <span className="user-avatar">{initialsOf(user.name)}</span>
         <span className="user-menu-name">{user.name.split(' ')[0]}</span>
-        <svg
-          className={`user-menu-chevron ${open ? 'is-open' : ''}`}
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <Icon name="chevron-down" size={16} className={`user-menu-chevron ${open ? 'is-open' : ''}`} />
       </button>
 
       <AnimatePresence>
         {open && (
           <motion.div
             className="user-menu-dropdown"
-            role="menu"
+            id="user-menu-panel"
             style={{ transformOrigin: 'top right' }}
             initial={variants.initial}
             animate={variants.animate}
@@ -110,26 +109,19 @@ export default function UserMenu() {
               <RoleBadge role={user.role} />
             </div>
             <div className="user-menu-divider" />
-            <Link to="/panel" className="user-menu-item" role="menuitem" onClick={() => setOpen(false)}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="3" width="7" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
-                <rect x="14" y="3" width="7" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
-                <rect x="14" y="12" width="7" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
-                <rect x="3" y="16" width="7" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
-              </svg>
+            <Link to="/panel" className="user-menu-item" onClick={() => setOpen(false)}>
+              <Icon name="layout" size={18} />
               Mi panel
             </Link>
-            <button type="button" className="user-menu-item user-menu-item-danger" role="menuitem" onClick={handleLogout}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Cerrar sesion
+            {user.role === 'concesionaria' && (
+              <Link to="/inventario" className="user-menu-item" onClick={() => setOpen(false)}>
+                <Icon name="car" size={18} />
+                Mi inventario
+              </Link>
+            )}
+            <button type="button" className="user-menu-item user-menu-item-danger" onClick={handleLogout}>
+              <Icon name="logout" size={18} />
+              Cerrar sesión
             </button>
           </motion.div>
         )}

@@ -1,0 +1,66 @@
+.car-art {
+  --car-edge: rgba(0, 0, 0, 0.38);
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .car-art {
+    --car-edge: rgba(255, 255, 255, 0.34);
+  }
+}
+
+.car-art-shadow {
+  fill: rgba(0, 0, 0, 0.14);
+}
+
+.car-art-body {
+  stroke: var(--car-edge);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.car-art-glass {
+  fill: rgba(196, 218, 240, 0.9);
+  stroke: var(--car-edge);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+.car-art-lines {
+  stroke: var(--car-edge);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  opacity: 0.7;
+}
+
+.car-art-light {
+  stroke: #ffd35a;
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
+.car-art-ground {
+  stroke: var(--car-edge);
+  stroke-width: 1.5;
+  opacity: 0.25;
+}
+
+.car-art-well {
+  fill: #121214;
+}
+
+.car-art-tire {
+  fill: #1c1c1e;
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 2;
+}
+
+.car-art-rim {
+  fill: #d1d1d6;
+}
+
+.car-art-hub {
+  fill: #8e8e93;
+}

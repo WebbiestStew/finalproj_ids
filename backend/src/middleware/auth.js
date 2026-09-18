@@ -5,15 +5,15 @@ function authenticate(req, res, next) {
   const [scheme, token] = header.split(' ');
 
   if (scheme !== 'Bearer' || !token) {
-    return res.status(401).json({ error: 'Token de autenticacion faltante' });
+    return res.status(401).json({ error: 'Token de autenticación faltante' });
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = payload;
+    // Pinning the algorithm closes the classic "alg: none / algorithm confusion" hole.
+    req.user = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
     return next();
   } catch {
-    return res.status(401).json({ error: 'Token invalido o expirado' });
+    return res.status(401).json({ error: 'Token inválido o expirado' });
   }
 }
 

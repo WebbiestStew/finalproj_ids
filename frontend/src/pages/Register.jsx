@@ -5,17 +5,21 @@ import AuthLayout from '../components/AuthLayout';
 import PasswordInput from '../components/PasswordInput';
 import PasswordStrength from '../components/PasswordStrength';
 import FormAlert from '../components/FormAlert';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
+import { usePageTitle } from '../hooks/usePageTitle';
+import { MIN_PASSWORD_LENGTH, validateRegistration } from '../utils/validateRegistration';
 
-const MIN_PASSWORD_LENGTH = 8;
+const ROLES = [
+  { value: 'comprador', label: 'Soy comprador' },
+  { value: 'concesionaria', label: 'Soy concesionaria' },
+];
 
 export default function Register() {
+  usePageTitle('Crear cuenta');
   const { register } = useAuth();
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
-  const highlightTransition = prefersReducedMotion
-    ? { duration: 0 }
-    : { type: 'spring', bounce: 0, duration: 0.3 };
+  const highlightTransition = prefersReducedMotion ? { duration: 0 } : { type: 'spring', bounce: 0, duration: 0.3 };
 
   const [role, setRole] = useState('comprador');
   const [name, setName] = useState('');
@@ -25,33 +29,32 @@ export default function Register() {
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const clearError = (field) => {
+  const clearError = (field) =>
     setErrors((prev) => {
       if (!prev[field]) return prev;
       const next = { ...prev };
       delete next[field];
       return next;
     });
-  };
 
-  const validate = () => {
-    const next = {};
-    if (name.trim().length < 2) next.name = 'Ingresa un nombre valido';
-    if (!/^\S+@\S+\.\S+$/.test(email)) next.email = 'Ingresa un correo valido';
-    if (password.length < MIN_PASSWORD_LENGTH) next.password = `Minimo ${MIN_PASSWORD_LENGTH} caracteres`;
-    setErrors(next);
-    return Object.keys(next).length === 0;
+  const handleRoleKeys = (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    setRole((current) => (current === 'comprador' ? 'concesionaria' : 'comprador'));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
-    if (!validate()) return;
+
+    const found = validateRegistration({ name, email, password });
+    setErrors(found);
+    if (Object.keys(found).length) return;
 
     setSubmitting(true);
     try {
       await register({ name, email, password, role });
-      navigate('/panel');
+      navigate('/panel', { replace: true });
     } catch (err) {
       setFormError(err.message);
     } finally {
@@ -59,49 +62,38 @@ export default function Register() {
     }
   };
 
+  const fieldProps = (field) => ({
+    'aria-invalid': errors[field] ? 'true' : undefined,
+    'aria-describedby': errors[field] ? `${field}-error` : undefined,
+  });
+
   return (
     <AuthLayout
-      title="Crea tu cuenta en DAuto"
+      icon="user"
+      title="Crea tu cuenta"
       subtitle="Elige el tipo de cuenta que necesitas para empezar."
       footer={
         <>
-          Ya tienes cuenta? <Link to="/iniciar-sesion">Inicia sesion</Link>
+          ¿Ya tienes cuenta? <Link to="/iniciar-sesion">Inicia sesión</Link>
         </>
       }
     >
-      <div className="segmented" role="tablist" aria-label="Tipo de cuenta">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={role === 'comprador'}
-          className={role === 'comprador' ? 'active' : ''}
-          onClick={() => setRole('comprador')}
-        >
-          {role === 'comprador' && (
-            <motion.span
-              layoutId="segmentedHighlight"
-              className="segmented-highlight"
-              transition={highlightTransition}
-            />
-          )}
-          <span className="segmented-label">Soy comprador</span>
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={role === 'concesionaria'}
-          className={role === 'concesionaria' ? 'active' : ''}
-          onClick={() => setRole('concesionaria')}
-        >
-          {role === 'concesionaria' && (
-            <motion.span
-              layoutId="segmentedHighlight"
-              className="segmented-highlight"
-              transition={highlightTransition}
-            />
-          )}
-          <span className="segmented-label">Soy concesionaria</span>
-        </button>
+      <div className="segmented" role="radiogroup" aria-label="Tipo de cuenta" onKeyDown={handleRoleKeys}>
+        {ROLES.map(({ value, label }) => (
+          <button
+            key={value}
+            type="button"
+            role="radio"
+            aria-checked={role === value}
+            tabIndex={role === value ? 0 : -1}
+            onClick={() => setRole(value)}
+          >
+            {role === value && (
+              <motion.span layoutId="segmentedHighlight" className="segmented-highlight" transition={highlightTransition} />
+            )}
+            <span className="segmented-label">{label}</span>
+          </button>
+        ))}
       </div>
 
       <FormAlert message={formError} />
@@ -117,15 +109,19 @@ export default function Register() {
               setName(e.target.value);
               clearError('name');
             }}
-            className={errors.name ? 'has-error' : ''}
-            placeholder={role === 'concesionaria' ? 'Autos del Norte' : 'Ana Garcia'}
+            placeholder={role === 'concesionaria' ? 'Autos del Norte' : 'Ana García'}
             autoComplete="name"
+            {...fieldProps('name')}
           />
-          {errors.name && <span className="field-error">{errors.name}</span>}
+          {errors.name && (
+            <span className="field-error" id="name-error">
+              {errors.name}
+            </span>
+          )}
         </div>
 
         <div className="field">
-          <label htmlFor="email">Correo electronico</label>
+          <label htmlFor="email">Correo electrónico</label>
           <input
             id="email"
             type="email"
@@ -134,15 +130,19 @@ export default function Register() {
               setEmail(e.target.value);
               clearError('email');
             }}
-            className={errors.email ? 'has-error' : ''}
             placeholder="tucorreo@ejemplo.com"
             autoComplete="email"
+            {...fieldProps('email')}
           />
-          {errors.email && <span className="field-error">{errors.email}</span>}
+          {errors.email && (
+            <span className="field-error" id="email-error">
+              {errors.email}
+            </span>
+          )}
         </div>
 
         <div className="field">
-          <label htmlFor="password">Contrasena</label>
+          <label htmlFor="password">Contraseña</label>
           <PasswordInput
             id="password"
             value={password}
@@ -150,17 +150,21 @@ export default function Register() {
               setPassword(e.target.value);
               clearError('password');
             }}
-            className={errors.password ? 'has-error' : ''}
-            placeholder="Minimo 8 caracteres"
+            placeholder={`Mínimo ${MIN_PASSWORD_LENGTH} caracteres`}
             autoComplete="new-password"
+            {...fieldProps('password')}
           />
           <PasswordStrength password={password} />
-          {errors.password && <span className="field-error">{errors.password}</span>}
+          {errors.password && (
+            <span className="field-error" id="password-error">
+              {errors.password}
+            </span>
+          )}
         </div>
 
         <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
-          {submitting && <span className="spinner" />}
-          {submitting ? 'Creando cuenta...' : 'Crear cuenta'}
+          {submitting && <span className="spinner" aria-hidden="true" />}
+          {submitting ? 'Creando cuenta…' : 'Crear cuenta'}
         </button>
       </form>
     </AuthLayout>

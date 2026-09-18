@@ -1,0 +1,82 @@
+.catalog {
+  padding-top: clamp(2rem, 6vw, 4rem);
+  padding-bottom: 5rem;
+}
+
+.catalog-head {
+  margin-bottom: 2rem;
+}
+
+.catalog-head h1 {
+  font-size: clamp(2.25rem, 6vw, 3.5rem);
+}
+
+.catalog-head p {
+  margin-top: 0.5rem;
+  max-width: 38rem;
+  color: var(--text-2);
+  font-size: 1.1875rem;
+  line-height: 1.4;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 0 1rem;
+  padding: 1.25rem 1.25rem 0.25rem;
+  border-radius: var(--r-l);
+  background: var(--card);
+}
+
+.filters .filter-search {
+  grid-column: 1 / -1;
+}
+
+.filters .field input,
+.filters .field select {
+  background: var(--page);
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box svg {
+  position: absolute;
+  left: 0.875rem;
+  color: var(--text-2);
+  pointer-events: none;
+}
+
+.search-box input {
+  padding-left: 2.5rem;
+}
+
+.catalog-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.75rem;
+  margin: 1rem 0 0.25rem;
+  color: var(--text-2);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.catalog-empty {
+  margin-top: 1rem;
+}
+
+.catalog-empty .btn {
+  margin-top: 1.25rem;
+}
+
+.load-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}

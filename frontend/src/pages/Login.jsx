@@ -3,9 +3,11 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
 import PasswordInput from '../components/PasswordInput';
 import FormAlert from '../components/FormAlert';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Login() {
+  usePageTitle('Iniciar sesión');
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,7 +23,7 @@ export default function Login() {
     setSubmitting(true);
     try {
       await login({ email, password });
-      navigate(location.state?.from || '/panel');
+      navigate(location.state?.from || '/panel', { replace: true });
     } catch (err) {
       setFormError(err.message);
     } finally {
@@ -31,11 +33,12 @@ export default function Login() {
 
   return (
     <AuthLayout
-      title="Bienvenido de vuelta"
-      subtitle="Inicia sesion para gestionar tu cuenta en DAuto."
+      icon="lock"
+      title="Iniciar sesión"
+      subtitle="Entra a tu cuenta de DAuto."
       footer={
         <>
-          No tienes cuenta? <Link to="/registro">Registrate</Link>
+          ¿No tienes cuenta? <Link to="/registro">Regístrate</Link>
         </>
       }
     >
@@ -43,7 +46,7 @@ export default function Login() {
 
       <form onSubmit={handleSubmit}>
         <div className="field">
-          <label htmlFor="email">Correo electronico</label>
+          <label htmlFor="email">Correo electrónico</label>
           <input
             id="email"
             type="email"
@@ -56,19 +59,20 @@ export default function Login() {
         </div>
 
         <div className="field">
-          <label htmlFor="password">Contrasena</label>
+          <label htmlFor="password">Contraseña</label>
           <PasswordInput
             id="password"
+            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Tu contrasena"
+            placeholder="Tu contraseña"
             autoComplete="current-password"
           />
         </div>
 
         <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
-          {submitting && <span className="spinner" />}
-          {submitting ? 'Ingresando...' : 'Iniciar sesion'}
+          {submitting && <span className="spinner" aria-hidden="true" />}
+          {submitting ? 'Entrando…' : 'Iniciar sesión'}
         </button>
       </form>
     </AuthLayout>

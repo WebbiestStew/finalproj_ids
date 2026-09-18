@@ -62,8 +62,14 @@ jobs:
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
-      - name: Instalar dependencias y correr cobertura (para que Sonar la importe)
+      - name: Cobertura del backend (para que Sonar la importe)
         working-directory: backend
+        run: |
+          npm ci
+          npm run test:coverage
+
+      - name: Cobertura del frontend (para que Sonar la importe)
+        working-directory: frontend
         run: |
           npm ci
           npm run test:coverage

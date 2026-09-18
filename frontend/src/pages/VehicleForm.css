@@ -1,0 +1,65 @@
+.form-page {
+  padding-top: 1.5rem;
+  padding-bottom: 5rem;
+  max-width: 62rem;
+}
+
+.form-page > h1 {
+  margin: 0.5rem 0 1.75rem;
+  font-size: clamp(2rem, 5vw, 2.75rem);
+}
+
+.back-chevron {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.vehicle-form-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
+}
+
+@media (max-width: 52rem) {
+  .vehicle-form-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vehicle-form-preview {
+  position: sticky;
+  top: 5rem;
+  padding: 2rem 1.25rem 1rem;
+  border-radius: var(--r-l);
+  background: radial-gradient(90% 70% at 50% 100%, var(--accent-soft), transparent), var(--card);
+}
+
+@media (max-width: 52rem) {
+  .vehicle-form-preview {
+    position: static;
+    order: -1;
+  }
+}
+
+.vehicle-form-preview p {
+  margin-top: 0.75rem;
+  text-align: center;
+  color: var(--text-2);
+  font-size: 0.8125rem;
+  letter-spacing: 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0 1rem;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}

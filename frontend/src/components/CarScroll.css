@@ -1,0 +1,111 @@
+.car-scroll {
+  position: relative;
+  height: 360vh;
+}
+
+.car-stage {
+  position: sticky;
+  top: 3.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 3vh, 2rem);
+  height: calc(100vh - 3.25rem);
+  min-height: 30rem;
+  padding: 1rem 1.5rem 2rem;
+  overflow: hidden;
+}
+
+.car-head {
+  text-align: center;
+}
+
+.car-kicker {
+  color: var(--text-2);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.car-head h2,
+.car-static > h2 {
+  margin-top: 0.25rem;
+  font-size: clamp(2rem, 4.8vw, 3.5rem);
+  letter-spacing: -0.028em;
+  text-wrap: balance;
+}
+
+.car-svg {
+  display: block;
+  width: min(100%, 56rem);
+  height: auto;
+  max-height: 46vh;
+  overflow: visible;
+  color: var(--text);
+}
+
+.car-svg .ghost {
+  stroke: var(--line);
+}
+
+.car-svg .drawn {
+  stroke: currentColor;
+}
+
+.car-svg .drawn.accent {
+  stroke: var(--accent-text);
+  stroke-width: 4;
+}
+
+.car-captions {
+  position: relative;
+  width: min(100%, 32rem);
+  height: 6rem;
+}
+
+.car-caption {
+  position: absolute;
+  inset: 0;
+  text-align: center;
+}
+
+.car-caption h3 {
+  font-size: clamp(1.375rem, 3vw, 1.75rem);
+  letter-spacing: -0.02em;
+}
+
+.car-caption p {
+  margin-top: 0.375rem;
+  color: var(--text-2);
+  font-size: clamp(1.0625rem, 2vw, 1.25rem);
+  line-height: 1.35;
+}
+
+/* Reduced motion: static composition */
+.car-static {
+  padding-top: clamp(3rem, 8vw, 5rem);
+  padding-bottom: clamp(3rem, 8vw, 5rem);
+  text-align: center;
+}
+
+.car-static .car-svg {
+  margin: 2rem auto;
+}
+
+.car-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.car-list h3 {
+  font-size: 1.1875rem;
+}
+
+.car-list p {
+  margin-top: 0.25rem;
+  color: var(--text-2);
+}

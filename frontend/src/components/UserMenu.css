@@ -5,19 +5,21 @@
 .user-menu-trigger {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px 6px 6px;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+  border: 0;
   border-radius: 999px;
-  border: 1px solid transparent;
   background: transparent;
-  cursor: pointer;
   color: var(--text);
-  transition: background 0.15s ease, border-color 0.15s ease, scale 0.1s ease-out;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, scale 0.1s ease-out;
 }
 
 .user-menu-trigger:hover {
-  background: var(--surface-2);
-  border-color: var(--border);
+  background: var(--seg-bg);
 }
 
 .user-menu-trigger:active {
@@ -27,63 +29,51 @@
 .user-avatar {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  background: var(--accent);
   color: #fff;
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.02em;
   flex-shrink: 0;
 }
 
 .user-avatar-lg {
-  width: 40px;
-  height: 40px;
-  font-size: 0.9rem;
-}
-
-.user-menu-name {
-  font-weight: 700;
-  font-size: 0.9rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 0.9375rem;
 }
 
 @media (max-width: 560px) {
   .user-menu-name {
     display: none;
   }
-
-  .user-menu-trigger {
-    padding: 4px;
-  }
 }
 
 .user-menu-chevron {
-  color: var(--text-muted);
-  transition: transform 0.18s ease;
+  color: var(--text-2);
+  transition: transform 0.2s ease;
 }
 
 .user-menu-chevron.is-open {
   transform: rotate(180deg);
 }
 
-/* Same functional-layer material as the navbar it hangs from (HIG Materials —
-   Liquid Glass: controls/navigation float above content as one distinct
-   layer). Content cards elsewhere stay opaque; this is chrome, not content. */
+/* Same translucent functional layer as the navbar it hangs from. Content
+   cards stay opaque; this is chrome. */
 .user-menu-dropdown {
   position: absolute;
-  top: calc(100% + 10px);
+  top: calc(100% + 0.5rem);
   right: 0;
-  width: 260px;
-  background: color-mix(in srgb, var(--surface) 82%, transparent);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid var(--border);
-  border-top-color: color-mix(in srgb, var(--text) 14%, var(--border));
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-lg);
-  padding: 16px;
+  width: 17rem;
+  padding: 0.75rem;
+  border-radius: var(--r-l);
+  background: var(--glass);
+  backdrop-filter: saturate(180%) blur(28px);
+  -webkit-backdrop-filter: saturate(180%) blur(28px);
+  box-shadow: var(--shadow-pop);
   z-index: 30;
   will-change: transform, opacity, filter;
 }
@@ -91,54 +81,57 @@
 .user-menu-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 0.75rem;
+  padding: 0.25rem 0.25rem 0.75rem;
+}
+
+.user-menu-header > div {
+  min-width: 0;
 }
 
 .user-menu-fullname {
-  font-weight: 700;
-  font-size: 0.92rem;
-  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
 }
 
 .user-menu-email {
-  margin: 2px 0 0;
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  color: var(--text-muted);
-  word-break: break-all;
+  margin-top: 0.125rem;
+  font-size: 0.8125rem;
+  color: var(--text-2);
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
 .user-menu-role {
-  margin-bottom: 12px;
+  padding: 0 0.25rem 0.75rem;
 }
 
 .user-menu-divider {
   height: 1px;
-  background: var(--border);
-  margin: 4px 0 8px;
+  margin: 0 0.25rem 0.5rem;
+  background: var(--line);
 }
 
 .user-menu-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.75rem;
   width: 100%;
-  padding: 10px 10px;
-  border-radius: var(--radius-sm);
-  border: none;
+  min-height: 2.5rem;
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: var(--r-s);
   background: transparent;
   color: var(--text);
-  font-weight: 600;
-  font-size: 0.88rem;
-  cursor: pointer;
-  transition: background 0.15s ease, scale 0.1s ease-out;
+  font-size: 0.9375rem;
+  font-weight: 500;
   text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease, scale 0.1s ease-out;
 }
 
 .user-menu-item:hover {
-  background: var(--surface-2);
+  background: var(--seg-bg);
 }
 
 .user-menu-item:active {
@@ -146,18 +139,22 @@
 }
 
 .user-menu-item svg {
-  color: var(--text-muted);
+  color: var(--text-2);
   flex-shrink: 0;
 }
 
-.user-menu-item-danger {
-  color: var(--danger);
-}
-
+.user-menu-item-danger,
 .user-menu-item-danger svg {
   color: var(--danger);
 }
 
 .user-menu-item-danger:hover {
   background: var(--danger-soft);
+}
+
+@media (pointer: coarse) {
+  .user-menu-trigger,
+  .user-menu-item {
+    min-height: 2.75rem;
+  }
 }

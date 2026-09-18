@@ -178,7 +178,7 @@ describe('Auth module (registro, login, roles)', () => {
       const admin = userModel.create({
         name: 'Admin DAuto',
         email: 'admin@example.com',
-        passwordHash: bcrypt.hashSync('adminpass123', 12),
+        passwordHash: bcrypt.hashSync('adminpass123', 4),
         role: 'admin',
       });
 
@@ -195,7 +195,7 @@ describe('Auth module (registro, login, roles)', () => {
     });
   });
 
-  describe('Misceleaneo', () => {
+  describe('Rutas generales', () => {
     it('responde 200 en la raiz (para spiders/health checks externos)', async () => {
       const res = await request(app).get('/');
       expect(res.status).toBe(200);

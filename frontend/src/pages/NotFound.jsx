@@ -1,23 +1,16 @@
 import { Link } from 'react-router-dom';
+import Icon from '../components/Icon';
+import { usePageTitle } from '../hooks/usePageTitle';
+import './NotFound.css';
 
 export default function NotFound() {
+  usePageTitle('Página no encontrada');
+
   return (
-    <div
-      className="container"
-      style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 16,
-        padding: '96px 24px',
-        textAlign: 'center',
-      }}
-    >
-      <span style={{ fontSize: '2.4rem' }}>🧭</span>
-      <h1>Pagina no encontrada</h1>
-      <p style={{ color: 'var(--text-muted)' }}>La ruta que buscas no existe o fue movida.</p>
+    <div className="not-found">
+      <Icon name="compass" size={48} className="not-found-icon" />
+      <h1>No encontramos esa página</h1>
+      <p>La dirección no existe o cambió de lugar.</p>
       <Link to="/" className="btn btn-primary">
         Volver al inicio
       </Link>

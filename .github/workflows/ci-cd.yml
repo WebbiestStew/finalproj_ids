@@ -26,8 +26,14 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      - name: Auditoría de dependencias (producción)
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Lint (ESLint + sonarjs)
         run: npm run lint
+
+      - name: Duplicación de código (jscpd)
+        run: npm run duplication
 
       - name: Pruebas unitarias con cobertura
         run: npm run test:coverage
@@ -39,9 +45,46 @@ jobs:
           name: coverage-report
           path: backend/coverage
 
+  frontend:
+    name: Frontend - lint, pruebas, cobertura y build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Auditoría de dependencias (producción)
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Lint (oxlint)
+        run: npm run lint
+
+      - name: Pruebas con cobertura
+        run: npm run test:coverage
+
+      - name: Build de producción
+        run: npm run build
+
+      - name: Publicar reporte de cobertura del frontend
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage-report
+          path: frontend/coverage
+
   build-and-push:
     name: Build y push de imagen Docker (GHCR)
-    needs: lint-and-test
+    needs: [lint-and-test, frontend]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
@@ -111,6 +154,10 @@ jobs:
           curl -sf -X POST http://localhost:3000/api/auth/register \
             -H "Content-Type: application/json" \
             -d '{"name":"Smoke Test","email":"smoke@example.com","password":"password123","role":"comprador"}'
+
+      - name: Validar que el catálogo público responde en el entorno de prueba
+        run: |
+          curl -sf http://localhost:3000/api/vehicles | grep -q '"vehicles"'
 
       - name: Logs del contenedor
         if: always()

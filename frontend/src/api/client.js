@@ -1,31 +1,50 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-class ApiError extends Error {
+export class ApiError extends Error {
   constructor(message, status) {
     super(message);
+    this.name = 'ApiError';
     this.status = status;
   }
 }
 
-async function request(path, { method = 'GET', body, token } = {}) {
-  const res = await fetch(`${API_URL}${path}`, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
+const NETWORK_ERROR = 'No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.';
+const UNKNOWN_ERROR = 'Ocurrió un error inesperado. Inténtalo de nuevo.';
 
-  const contentType = res.headers.get('content-type') || '';
-  const data = contentType.includes('application/json') ? await res.json() : null;
+async function request(path, { method = 'GET', body, token } = {}) {
+  let res;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    throw new ApiError(NETWORK_ERROR, 0);
+  }
+
+  const isJson = (res.headers.get('content-type') || '').includes('application/json');
+  const data = isJson ? await res.json() : null;
 
   if (!res.ok) {
-    const message = Array.isArray(data?.error) ? data.error.join(' ') : data?.error || 'Ocurrio un error inesperado';
+    const message = Array.isArray(data?.error) ? data.error.join(' ') : data?.error || UNKNOWN_ERROR;
     throw new ApiError(message, res.status);
   }
 
   return data;
+}
+
+// Builds ?a=1&b=2 from an object, skipping empty values.
+function toQuery(params = {}) {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') query.set(key, String(value));
+  });
+  const text = query.toString();
+  return text ? `?${text}` : '';
 }
 
 export const api = {
@@ -33,6 +52,13 @@ export const api = {
   login: (payload) => request('/api/auth/login', { method: 'POST', body: payload }),
   me: (token) => request('/api/auth/me', { token }),
   listUsers: (token) => request('/api/auth/users', { token }),
-};
 
-export { ApiError };
+  listVehicles: (params) => request(`/api/vehicles${toQuery(params)}`),
+  vehicleBrands: () => request('/api/vehicles/brands'),
+  getVehicle: (id) => request(`/api/vehicles/${id}`),
+  myVehicles: (token) => request('/api/vehicles/mine', { token }),
+  createVehicle: (token, body) => request('/api/vehicles', { method: 'POST', body, token }),
+  updateVehicle: (token, id, body) => request(`/api/vehicles/${id}`, { method: 'PUT', body, token }),
+  setVehicleStatus: (token, id, status) => request(`/api/vehicles/${id}/status`, { method: 'PATCH', body: { status }, token }),
+  deleteVehicle: (token, id) => request(`/api/vehicles/${id}`, { method: 'DELETE', token }),
+};

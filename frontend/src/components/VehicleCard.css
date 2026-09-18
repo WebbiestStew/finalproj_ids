@@ -1,0 +1,91 @@
+.vehicle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17.5rem), 1fr));
+  gap: 1rem;
+}
+
+.vehicle-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--r-l);
+  background: var(--card);
+  transition: box-shadow 0.25s ease, scale 0.15s ease-out;
+}
+
+.vehicle-card:hover {
+  box-shadow: var(--shadow-pop);
+}
+
+/* Press feedback starts on pointer-down, like every other control */
+.vehicle-card:active {
+  scale: 0.985;
+}
+
+.vehicle-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 1.75rem 1.5rem 0.5rem;
+  background: radial-gradient(90% 70% at 50% 100%, var(--accent-soft), transparent);
+}
+
+.vehicle-art .car-art {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vehicle-card:hover .vehicle-art .car-art {
+  transform: translateX(0.375rem) scale(1.03);
+}
+
+.vehicle-art .pill-hold {
+  position: absolute;
+  top: 0.875rem;
+  left: 0.875rem;
+}
+
+.pill-hold {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.vehicle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.vehicle-info h3 {
+  font-size: 1.1875rem;
+  letter-spacing: -0.018em;
+}
+
+.vehicle-meta {
+  color: var(--text-2);
+  font-size: 0.9375rem;
+}
+
+.vehicle-price {
+  margin-top: 0.375rem;
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.vehicle-dealer {
+  color: var(--text-2);
+  font-size: 0.8125rem;
+  letter-spacing: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vehicle-card,
+  .vehicle-art .car-art {
+    transition: none;
+  }
+
+  .vehicle-card:hover .vehicle-art .car-art {
+    transform: none;
+  }
+}

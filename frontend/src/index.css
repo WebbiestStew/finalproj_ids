@@ -1,53 +1,90 @@
+/*
+ * DAuto design system — Apple design language, translated for the web.
+ *
+ * Color is semantic (roles, not hexes) and adapts to light/dark through
+ * prefers-color-scheme; there is deliberately no in-app appearance switch.
+ * Contrast is measured with a script, not eyeballed. Every text pair is >= 4.5:1,
+ * including tinted badges on the darker card surface (worst case):
+ *   light  text 16.8 · secondary 4.66 on card · accent text 5.11 · badges 5.2-5.9 · white on accent fill 4.70
+ *   dark   text 15.6 on card · secondary 6.61 on card · accent text 5.64 · badges 5.4-6.2 · white on accent fill 4.70
+ */
+
 :root {
-  --bg: #f6f8fc;
-  --surface: #ffffff;
-  --surface-2: #f1f5f9;
-  --text: #0f172a;
-  --text-muted: #5b6578;
-  --border: #e2e8f0;
-  --primary: #2149d1;
-  --primary-dark: #17359e;
-  --primary-soft: #e8edfd;
-  --accent: #f59e0b;
-  --accent-soft: #fef3c7;
-  --success: #16a34a;
-  --success-soft: #dcfce7;
-  --danger: #dc2626;
-  --danger-soft: #fee2e2;
-  --radius-sm: 8px;
-  --radius: 14px;
-  --radius-lg: 22px;
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.18);
-  --shadow-lg: 0 24px 60px -20px rgba(15, 23, 42, 0.28);
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: light dark;
+
+  --page: #ffffff;
+  --card: #f5f5f7;
+  --card-strong: #e8e8ed;
+  --text: #1d1d1f;
+  --text-2: #6e6e73;
+  --line: rgba(0, 0, 0, 0.1);
+
+  --accent: #0071e3;
+  --accent-strong: #0066cc;
+  --accent-text: #0066cc;
+  --accent-soft: rgba(0, 113, 227, 0.1);
+
+  --danger: #d70015;
+  --danger-soft: rgba(215, 0, 21, 0.08);
+  --success: #1d7a34;
+  --success-text: #16642a;
+  --accent-badge: #0058b0;
+  --success-soft: rgba(29, 122, 52, 0.1);
+  --warning: #8a4d00;
+  --warning-soft: rgba(160, 90, 0, 0.12);
+
+  --glass: rgba(255, 255, 255, 0.72);
+  --seg-bg: rgba(118, 118, 128, 0.12);
+  --seg-thumb: #ffffff;
+
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.06);
+  --shadow-pop: 0 20px 48px -12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.06);
+
+  --r-s: 0.625rem;
+  --r-m: 0.875rem;
+  --r-l: 1.375rem;
+
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0b1120;
-    --surface: #131b2e;
-    --surface-2: #1a2338;
-    --text: #eef1f8;
-    --text-muted: #97a2b8;
-    --border: #26314a;
-    --primary: #5b7cfa;
-    --primary-dark: #7d97ff;
-    --primary-soft: #1a2648;
-    --accent: #fbbf24;
-    --accent-soft: #3a2f13;
-    --success: #4ade80;
-    --success-soft: #143523;
-    --danger: #f87171;
-    --danger-soft: #3a1a1a;
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.55);
-    --shadow-lg: 0 24px 60px -20px rgba(0, 0, 0, 0.7);
+    --page: #000000;
+    --card: #1c1c1e;
+    --card-strong: #2c2c2e;
+    --text: #f5f5f7;
+    --text-2: #a1a1a6;
+    --line: rgba(255, 255, 255, 0.16);
+
+    --accent-text: #2997ff;
+    --accent-soft: rgba(41, 151, 255, 0.18);
+
+    --danger: #ff6961;
+    --danger-soft: rgba(255, 105, 97, 0.16);
+    --success: #30d158;
+    --success-text: #30d158;
+    --accent-badge: #4da8ff;
+    --success-soft: rgba(48, 209, 88, 0.16);
+    --warning: #ff9f0a;
+    --warning-soft: rgba(255, 159, 10, 0.16);
+
+    --glass: rgba(29, 29, 31, 0.72);
+    --seg-bg: rgba(118, 118, 128, 0.24);
+    --seg-thumb: #636366;
+
+    --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-pop: 0 20px 48px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
   }
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
 body,
@@ -57,46 +94,28 @@ body,
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: var(--page);
   color: var(--text);
-  font-family: var(--font-sans);
+  font: 400 1.0625rem/1.47 var(--font);
+  letter-spacing: -0.011em;
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-::selection {
-  background: var(--primary);
-  color: #fff;
-}
-
-::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 999px;
-  border: 3px solid var(--bg);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-  border-radius: 4px;
 }
 
 #root {
   display: flex;
   flex-direction: column;
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 a {
@@ -105,207 +124,234 @@ a {
 }
 
 /*
- * Tracking is size-specific, not a single flat value (HIG Typography — Tracking
- * values: SF Pro goes from -0.43pt at 17pt to 0 by 80pt+). Large display text
- * gets tighter negative tracking; smaller headings loosen back toward 0.
+ * Tracking is size-specific: the bigger the type, the tighter it sits; small
+ * text stays near 0. Weight (600) + size + leading carry hierarchy together.
  */
 h1,
 h2,
 h3,
-h4 {
+h4,
+p {
   margin: 0;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 600;
+  letter-spacing: -0.016em;
 }
 
 h1 {
-  letter-spacing: -0.025em;
+  letter-spacing: -0.028em;
+  line-height: 1.07;
 }
 
 h2 {
-  letter-spacing: -0.018em;
-}
-
-p {
-  margin: 0;
-  letter-spacing: 0;
+  letter-spacing: -0.022em;
+  line-height: 1.12;
 }
 
 button,
 input,
-select {
+select,
+textarea {
   font-family: inherit;
 }
 
 .container {
   width: 100%;
-  max-width: 1120px;
+  max-width: 71.25rem;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 1.5rem;
 }
 
-/* Buttons */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  border-radius: var(--r-s);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 500;
+  transition: top 0.15s ease-out;
+}
+
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* ---------- Buttons ---------- */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  padding: 12px 22px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 1.375rem;
+  border: 0;
+  border-radius: 999px;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  letter-spacing: -0.011em;
   white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, scale 0.1s ease-out;
 }
 
+/* Feedback lives on the press and starts instantly */
 .btn:active {
-  transform: scale(0.97);
-  transition-duration: 100ms;
+  scale: 0.97;
 }
 
 .btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
+  scale: 1;
 }
 
 .btn-primary {
-  background: var(--primary);
+  background: var(--accent);
   color: #fff;
-  box-shadow: 0 10px 24px -10px rgba(33, 73, 209, 0.6);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--primary-dark);
+  background: var(--accent-strong);
 }
 
 .btn-secondary {
-  background: var(--surface);
-  color: var(--text);
-  border-color: var(--border);
+  background: var(--accent-soft);
+  color: var(--accent-text);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  border-color: var(--primary);
-  color: var(--primary);
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
-.btn-ghost {
+.btn-quiet {
   background: transparent;
-  color: var(--text-muted);
+  color: var(--accent-text);
+  padding: 0 0.75rem;
 }
 
-.btn-ghost:hover:not(:disabled) {
-  color: var(--text);
+.btn-quiet:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.btn-sm {
+  min-height: 2rem;
+  padding: 0 1rem;
+  font-size: 0.9375rem;
 }
 
 .btn-block {
   width: 100%;
+  min-height: 3rem;
 }
 
-.btn-sm {
-  padding: 8px 14px;
-  font-size: 0.85rem;
+@media (pointer: coarse) {
+  .btn-sm,
+  .segmented button {
+    min-height: 2.75rem;
+  }
 }
 
-/* Cards & surfaces */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
-}
-
-/* Badges */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.badge-admin {
-  background: var(--accent-soft);
-  color: #92610a;
-}
-
-.badge-concesionaria {
-  background: var(--primary-soft);
-  color: var(--primary-dark);
-}
-
-.badge-comprador {
-  background: var(--success-soft);
-  color: #146c34;
-}
-
-@media (prefers-color-scheme: dark) {
-  .badge-admin { color: var(--accent); }
-  .badge-concesionaria { color: var(--primary-dark); }
-  .badge-comprador { color: var(--success); }
-}
-
-/* Forms */
+/* ---------- Forms ---------- */
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 18px;
+  gap: 0.375rem;
+  margin-bottom: 1rem;
 }
 
 .field label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
-.field input {
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  font-size: 0.95rem;
-  background: var(--surface);
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  height: 3rem;
+  padding: 0 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--r-m);
+  background: var(--card);
   color: var(--text);
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  font-size: 1.0625rem;
+  letter-spacing: -0.011em;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.field input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--primary-soft);
-  outline: none;
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--text-2);
 }
 
-.field input.has-error {
+.field select {
+  appearance: none;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  cursor: pointer;
+}
+
+.field textarea {
+  height: auto;
+  min-height: 6.5rem;
+  padding: 0.75rem 1rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--page);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.field input[aria-invalid='true'],
+.field select[aria-invalid='true'],
+.field textarea[aria-invalid='true'] {
   border-color: var(--danger);
 }
 
 .field-error {
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: var(--danger);
-  font-weight: 600;
 }
 
 .alert {
   display: flex;
   align-items: flex-start;
-  border-radius: var(--radius-sm);
-  padding: 12px 16px;
-  font-size: 0.88rem;
-  font-weight: 600;
-  margin-bottom: 18px;
+  gap: 0.5rem;
+  margin-bottom: 1.125rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--r-m);
+  font-size: 0.9375rem;
+  font-weight: 500;
   line-height: 1.4;
+  letter-spacing: -0.006em;
 }
 
 .alert svg {
-  margin-top: 1px;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
 }
 
 .alert-error {
@@ -313,33 +359,128 @@ select {
   color: var(--danger);
 }
 
-.alert-success {
-  background: var(--success-soft);
-  color: var(--success);
+/* ---------- Shared surfaces ---------- */
+/* Inset grouped list — rows share one rounded surface, separated by hairlines. */
+.list {
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--r-l);
+  background: var(--card);
 }
 
-/* Segmented control (role picker) */
+.list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.25rem;
+  padding: 0.75rem 1.25rem;
+}
+
+.list-row + .list-row {
+  border-top: 1px solid var(--line);
+}
+
+.list-row dt {
+  color: var(--text-2);
+}
+
+.list-row dd {
+  margin: 0;
+  font-weight: 500;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  padding: 3rem 1.5rem;
+  border-radius: var(--r-l);
+  background: var(--card);
+  text-align: center;
+}
+
+.empty-icon {
+  color: var(--text-2);
+}
+
+.empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.empty h2 {
+  margin: 0.75rem 0 0.375rem;
+  font-size: 1.3125rem;
+}
+
+.empty p {
+  max-width: 30rem;
+  margin: 0 auto;
+  color: var(--text-2);
+}
+
+.dash-kicker {
+  color: var(--text-2);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+/* ---------- Badges & pills ---------- */
+.badge,
+.pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.badge-admin {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.badge-concesionaria {
+  background: var(--accent-soft);
+  color: var(--accent-badge);
+}
+
+.badge-comprador,
+.pill-live {
+  background: var(--success-soft);
+  color: var(--success-text);
+}
+
+.pill-soon {
+  border: 1px solid var(--line);
+  color: var(--text-2);
+}
+
+/* ---------- Segmented control (role picker) ---------- */
 .segmented {
   position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px;
-  background: var(--surface-2);
-  padding: 6px;
-  border-radius: var(--radius-sm);
-  margin-bottom: 20px;
+  padding: 2px;
+  margin-bottom: 1.5rem;
+  border-radius: 0.6rem;
+  background: var(--seg-bg);
 }
 
-/* The highlight is a single shared element (Motion layoutId) that lives
-   inside whichever button is active and gets carried smoothly to the other
-   button's DOM position on toggle — a real spring, not an approximated
-   translateX transition. */
+/* One shared element (Motion layoutId) carried between the two buttons. */
 .segmented-highlight {
   position: absolute;
   inset: 0;
-  background: var(--surface);
-  border-radius: 8px;
-  box-shadow: var(--shadow-sm);
+  border-radius: 0.5rem;
+  background: var(--seg-thumb);
+  box-shadow: var(--shadow-1);
 }
 
 .segmented button {
@@ -347,13 +488,14 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  min-height: 2.5rem;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: 0.5rem;
   background: transparent;
-  padding: 12px 10px;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 0.88rem;
-  color: var(--text-muted);
+  color: var(--text-2);
+  font-size: 0.9375rem;
+  font-weight: 500;
   cursor: pointer;
   transition: color 0.2s ease, scale 0.1s ease-out;
 }
@@ -362,18 +504,20 @@ select {
   scale: 0.97;
 }
 
+.segmented button[aria-checked='true'] {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .segmented-label {
   position: relative;
   z-index: 1;
 }
 
-.segmented button.active {
-  color: var(--primary);
-}
-
+/* ---------- Loading ---------- */
 .spinner {
-  width: 16px;
-  height: 16px;
+  width: 1rem;
+  height: 1rem;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.4);
   border-top-color: #fff;
@@ -386,25 +530,29 @@ select {
   }
 }
 
-.fade-in {
-  animation: fadeIn 0.4s ease both;
+.skeleton {
+  display: inline-block;
+  height: 0.875rem;
+  border-radius: 0.25rem;
+  background: linear-gradient(90deg, var(--card-strong) 25%, var(--card) 37%, var(--card-strong) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  100% {
+    background-position: 0 50%;
   }
 }
 
+/* ---------- Reveal on scroll ---------- */
 .reveal {
   opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(1.125rem);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .reveal-visible {
@@ -412,12 +560,17 @@ select {
   transform: translateY(0);
 }
 
+/* ---------- Accessibility preferences ----------
+ * Reduced motion: a gentler equivalent, not silence — content still appears.
+ * Reduced transparency: translucent chrome becomes solid.
+ * Increased contrast: defined borders and stronger secondary text.
+ */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .reveal,
-  .hero-inner > *,
-  .fade-in,
-  .segmented-highlight,
-  .feature-card,
   .skeleton {
     animation: none !important;
     transition: none !important;
@@ -426,15 +579,10 @@ select {
   }
 }
 
-/*
- * Reduced transparency: HIG Accessibility calls for a non-vestibular, frostier
- * equivalent rather than dropping the effect outright — raise opacity, drop blur.
- * Increased contrast: near-solid surface with a defined, visible border.
- */
 @media (prefers-reduced-transparency: reduce) {
   .navbar,
   .user-menu-dropdown {
-    background: var(--surface) !important;
+    background: var(--page) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
@@ -442,13 +590,14 @@ select {
 
 @media (prefers-contrast: more) {
   :root {
-    --border: var(--text-muted);
+    --line: var(--text-2);
+    --text-2: var(--text);
   }
 
-  .card,
-  .navbar,
-  .user-menu-dropdown,
-  .field input {
-    border-width: 1.5px;
+  .field input,
+  .list,
+  .tile,
+  .empty {
+    border: 1px solid var(--text-2);
   }
 }
