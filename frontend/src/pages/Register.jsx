@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, useReducedMotion } from 'motion/react';
 import AuthLayout from '../components/AuthLayout';
+import PasswordInput from '../components/PasswordInput';
+import PasswordStrength from '../components/PasswordStrength';
+import FormAlert from '../components/FormAlert';
 import { useAuth } from '../context/AuthContext';
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -8,6 +12,10 @@ const MIN_PASSWORD_LENGTH = 8;
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const prefersReducedMotion = useReducedMotion();
+  const highlightTransition = prefersReducedMotion
+    ? { duration: 0 }
+    : { type: 'spring', bounce: 0, duration: 0.3 };
 
   const [role, setRole] = useState('comprador');
   const [name, setName] = useState('');
@@ -16,6 +24,15 @@ export default function Register() {
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  const clearError = (field) => {
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
 
   const validate = () => {
     const next = {};
@@ -55,21 +72,39 @@ export default function Register() {
       <div className="segmented" role="tablist" aria-label="Tipo de cuenta">
         <button
           type="button"
+          role="tab"
+          aria-selected={role === 'comprador'}
           className={role === 'comprador' ? 'active' : ''}
           onClick={() => setRole('comprador')}
         >
-          Soy comprador
+          {role === 'comprador' && (
+            <motion.span
+              layoutId="segmentedHighlight"
+              className="segmented-highlight"
+              transition={highlightTransition}
+            />
+          )}
+          <span className="segmented-label">Soy comprador</span>
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={role === 'concesionaria'}
           className={role === 'concesionaria' ? 'active' : ''}
           onClick={() => setRole('concesionaria')}
         >
-          Soy concesionaria
+          {role === 'concesionaria' && (
+            <motion.span
+              layoutId="segmentedHighlight"
+              className="segmented-highlight"
+              transition={highlightTransition}
+            />
+          )}
+          <span className="segmented-label">Soy concesionaria</span>
         </button>
       </div>
 
-      {formError && <div className="alert alert-error">{formError}</div>}
+      <FormAlert message={formError} />
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="field">
@@ -78,7 +113,10 @@ export default function Register() {
             id="name"
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              clearError('name');
+            }}
             className={errors.name ? 'has-error' : ''}
             placeholder={role === 'concesionaria' ? 'Autos del Norte' : 'Ana Garcia'}
             autoComplete="name"
@@ -92,7 +130,10 @@ export default function Register() {
             id="email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              clearError('email');
+            }}
             className={errors.email ? 'has-error' : ''}
             placeholder="tucorreo@ejemplo.com"
             autoComplete="email"
@@ -102,15 +143,18 @@ export default function Register() {
 
         <div className="field">
           <label htmlFor="password">Contrasena</label>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              clearError('password');
+            }}
             className={errors.password ? 'has-error' : ''}
             placeholder="Minimo 8 caracteres"
             autoComplete="new-password"
           />
+          <PasswordStrength password={password} />
           {errors.password && <span className="field-error">{errors.password}</span>}
         </div>
 

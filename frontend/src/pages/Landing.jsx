@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Reveal from '../components/Reveal';
 import './Landing.css';
 
 const FEATURES = [
@@ -77,17 +78,17 @@ export default function Landing() {
       </section>
 
       <section className="container features">
-        <div className="features-heading">
+        <Reveal className="features-heading">
           <h2>Todo lo que necesitas para comprar o vender un auto</h2>
           <p>
             Este avance de proyecto ya incluye el modulo de autenticacion. El resto del alcance
             funcional esta planeado para los proximos sprints.
           </p>
-        </div>
+        </Reveal>
 
         <div className="feature-grid">
-          {FEATURES.map((f) => (
-            <div className="feature-card card" key={f.title}>
+          {FEATURES.map((f, i) => (
+            <Reveal className="feature-card card" key={f.title} delay={i * 60}>
               <div className="feature-icon">{f.icon}</div>
               <div className="feature-top">
                 <h3>{f.title}</h3>
@@ -96,7 +97,7 @@ export default function Landing() {
                 </span>
               </div>
               <p>{f.description}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>

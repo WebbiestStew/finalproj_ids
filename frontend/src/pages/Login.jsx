@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
+import PasswordInput from '../components/PasswordInput';
+import FormAlert from '../components/FormAlert';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
@@ -37,7 +39,7 @@ export default function Login() {
         </>
       }
     >
-      {formError && <div className="alert alert-error">{formError}</div>}
+      <FormAlert message={formError} />
 
       <form onSubmit={handleSubmit}>
         <div className="field">
@@ -55,10 +57,8 @@ export default function Login() {
 
         <div className="field">
           <label htmlFor="password">Contrasena</label>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
-            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Tu contrasena"

@@ -1,15 +1,10 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import UserMenu from './UserMenu';
 import './Navbar.css';
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
+  const { user } = useAuth();
 
   return (
     <header className="navbar">
@@ -20,15 +15,7 @@ export default function Navbar() {
         </Link>
 
         {user ? (
-          <div className="navbar-actions">
-            <span className="navbar-user">Hola, {user.name.split(' ')[0]}</span>
-            <Link to="/panel" className="btn btn-secondary btn-sm">
-              Mi panel
-            </Link>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={handleLogout}>
-              Cerrar sesion
-            </button>
-          </div>
+          <UserMenu />
         ) : (
           <div className="navbar-actions">
             <Link to="/iniciar-sesion" className="btn btn-ghost btn-sm">

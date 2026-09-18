@@ -74,34 +74,39 @@ export default function Dashboard() {
 
             {usersError && <div className="alert alert-error">{usersError}</div>}
 
-            {loadingUsers ? (
-              <p className="dashboard-copy">Cargando usuarios...</p>
-            ) : (
-              <div className="table-wrap">
-                <table className="user-table">
-                  <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Correo</th>
-                      <th>Rol</th>
-                      <th>Registrado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((u) => (
-                      <tr key={u.id}>
-                        <td>{u.name}</td>
-                        <td>{u.email}</td>
-                        <td>
-                          <RoleBadge role={u.role} />
-                        </td>
-                        <td>{new Date(u.created_at).toLocaleDateString('es-MX')}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <div className="table-wrap">
+              <table className="user-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Registrado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loadingUsers
+                    ? [0, 1, 2].map((i) => (
+                        <tr key={i} className="skeleton-row">
+                          <td><span className="skeleton" style={{ width: '70%' }} /></td>
+                          <td><span className="skeleton" style={{ width: '85%' }} /></td>
+                          <td><span className="skeleton" style={{ width: 90 }} /></td>
+                          <td><span className="skeleton" style={{ width: 70 }} /></td>
+                        </tr>
+                      ))
+                    : users.map((u) => (
+                        <tr key={u.id} className="fade-in">
+                          <td>{u.name}</td>
+                          <td>{u.email}</td>
+                          <td>
+                            <RoleBadge role={u.role} />
+                          </td>
+                          <td>{new Date(u.created_at).toLocaleDateString('es-MX')}</td>
+                        </tr>
+                      ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
