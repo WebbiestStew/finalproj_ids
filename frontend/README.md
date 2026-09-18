@@ -1,16 +1,33 @@
-# React + Vite
+# DAuto — frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+SPA en React (Vite) que consume el backend en `../backend`. Cubre lo que ya
+existe del producto: landing, registro, login y un panel por rol. No hay
+catálogo, financiamiento ni nada de eso todavía — ver el README raíz del repo
+para el panorama completo.
 
-Currently, two official plugins are available:
+## Correr en local
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+Por defecto apunta a `http://localhost:3000` (el backend). Si lo corres en otro
+puerto o hay que apuntar a un backend distinto, define `VITE_API_URL` en un
+`.env` (ver `.env.example`).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Stack
 
-## Expanding the Oxlint configuration
+React 19 + Vite, `react-router-dom` para rutas, y `motion` (Framer Motion) para
+las animaciones que sí importan — el menú de usuario, el control segmentado del
+registro, y las transiciones entre páginas. Todo lo demás es CSS plano con
+variables, sin ningún framework de UI.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Scripts
+
+```bash
+npm run dev      # servidor de desarrollo
+npm run build    # build de producción a dist/
+npm run lint     # oxlint
+npm run preview  # sirve el build de producción localmente
+```
