@@ -1,6 +1,6 @@
 const { vehicleSchema, statusSchema, listQuerySchema } = require('../utils/validators');
 const { validationError } = require('../utils/http');
-const { PUBLIC_STATUSES } = require('../utils/vehicleOptions');
+const { PUBLIC_STATUSES, MAX_VEHICLES_PER_DEALER } = require('../utils/vehicleOptions');
 
 const NOT_FOUND = { error: 'Vehículo no encontrado' };
 
@@ -46,6 +46,10 @@ function createVehicleController(vehicleModel) {
   function create(req, res) {
     const parsed = vehicleSchema.safeParse(req.body);
     if (!parsed.success) return validationError(res, parsed);
+
+    if (vehicleModel.countByDealer(req.user.sub) >= MAX_VEHICLES_PER_DEALER) {
+      return res.status(409).json({ error: `Alcanzaste el límite de ${MAX_VEHICLES_PER_DEALER} vehículos publicados` });
+    }
 
     return res.status(201).json({ vehicle: vehicleModel.create(req.user.sub, parsed.data) });
   }

@@ -1,0 +1,30 @@
+# Render Blueprint: crea el servicio con "New > Blueprint" apuntando a este repositorio.
+# Una sola pieza: la imagen del Dockerfile sirve la API y el frontend (mismo origen, sin CORS).
+services:
+  - type: web
+    name: dauto
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    # false = solo se despliega cuando el pipeline de GitHub pasa y dispara el Deploy Hook
+    # (secreto RENDER_DEPLOY_HOOK). Ponlo en true si prefieres desplegar en cada push.
+    autoDeploy: false
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: TRUST_PROXY
+        value: "1"
+      - key: SEED_DEMO
+        value: "true"
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+    # El plan gratuito NO conserva archivos: la base SQLite se reinicia en cada despliegue o
+    # reinicio (el administrador y los datos demo se recrean solos gracias a las variables de
+    # arriba). Para conservar los datos hay que pasar a un plan de pago y descomentar:
+    # disk:
+    #   name: dauto-data
+    #   mountPath: /app/data
+    #   sizeGB: 1

@@ -7,3 +7,4 @@ backend/.env
 zap-report*
 frontend/coverage/
 frontend/dist/
+.env

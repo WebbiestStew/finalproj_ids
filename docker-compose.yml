@@ -1,0 +1,21 @@
+# Runs the whole app in one container:   npm run setup && docker compose up --build
+# (or copy .env.example to .env and edit it). Then open http://localhost:3000
+services:
+  dauto:
+    build: .
+    image: dauto:local
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET. Ejecuta npm run setup o copia .env.example a .env}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      SEED_DEMO: ${SEED_DEMO:-false}
+      DEMO_PASSWORD: ${DEMO_PASSWORD:-}
+      TRUST_PROXY: ${TRUST_PROXY:-}
+    volumes:
+      - dauto-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  dauto-data:

@@ -46,7 +46,7 @@ funcionalidad central del acta (secciones 1.1 y 2.1, historia de usuario 1 y 2):
 
 | | Pruebas | Statements | Branches | Functions | Lines | Umbral |
 |---|---|---|---|---|---|---|
-| Backend (Jest + supertest) | 104 | 100 % | 92.94 % | 100 % | 100 % | 80 % (rompe la build) |
+| Backend (Jest + supertest) | 130 | 100 % | 92.94 % | 100 % | 100 % | 80 % (rompe la build) |
 | Frontend (Vitest + Testing Library) | 132 | 97.34 % | 87.50 % | 96.48 % | 97.81 % | — |
 
 Las pruebas del backend cubren registro/login por rol, roles, middleware, y las pruebas de seguridad
@@ -68,8 +68,19 @@ accesibilidad (`role="alert"`, `aria-invalid`, `aria-describedby`, `aria-pressed
 `.github/workflows/security-scan.yml` corre OWASP ZAP contra el servidor levantado (y SonarCloud si se
 configura `SONAR_TOKEN`).
 
-> **Alcance:** no hay hosting persistente disponible, así que el "entorno de prueba" es efímero (vive lo que
-> dura el job). La imagen ya queda en GHCR lista para un host persistente.
+5. **`deploy-hosting`**: si existe el secreto `RENDER_DEPLOY_HOOK`, dispara el despliegue en Render tras pasar
+   todo lo anterior; sin el secreto se omite y el pipeline queda en verde.
+
+**Una sola imagen, un solo servicio.** El backend sirve el frontend compilado en el mismo puerto (con caché
+inmutable para `assets/`, `index.html` siempre revalidado y rutas del cliente que sobreviven a un refresco), por lo
+que desplegar es publicar una imagen: no hay CORS ni segundo servicio. Un solo comando en local
+(`npm run setup && npm run dev`) y otro con Docker (`docker compose up --build`); `render.yaml` y `fly.toml`
+dejan listos dos hostings, y `docs/despliegue.md` explica todo paso a paso. El administrador y los datos demo se
+crean desde variables de entorno, lo que permite arrancar en un hosting sin terminal.
+
+> **Alcance:** el "entorno de prueba" del pipeline es efímero (vive lo que dura el job); el despliegue real a un
+> hosting está configurado pero requiere la cuenta del autor. No hay Docker en la máquina de desarrollo, así que
+> el `docker build` real se confirma en CI; localmente se verificó cada capa de la imagen por separado.
 
 ---
 
@@ -91,6 +102,8 @@ Vías complementarias: OWASP ZAP baseline en CI, pruebas manuales dirigidas y re
 | 8 | SQLi en `email` (registro/login) | Prueba manual | Ya seguro por diseño (`zod` + consultas parametrizadas) | Prueba de regresión |
 | 9 | Cabeceras de seguridad | Prueba manual + ZAP | `helmet` correcto | Confirmado |
 | 10 | Referencia directa insegura (IDOR): una concesionaria podría editar, cambiar de estado o borrar autos de otra cambiando el `:id` | Diseño del catálogo | Se carga el vehículo y se compara su dueña con el token en cada operación de escritura; el admin puede moderar | Pruebas de 403 en PUT, PATCH y DELETE y de que el auto queda intacto |
+| 12 | Escrituras sin límite: una cuenta podía publicar sin tope y a cualquier frecuencia (inflar la base y el catálogo) | Revisión de diseño | Máximo de 500 vehículos por concesionaria (409) y límite de frecuencia sobre POST/PUT/PATCH/DELETE del catálogo (429) | `deploy.test.js` |
+| 13 | Datos demo con contraseña conocida (`demo-password-123`) habrían llegado a un despliegue público | Revisión de despliegue | Sin `DEMO_PASSWORD` las cuentas demo se crean con una contraseña aleatoria imposible de adivinar; el pipeline verifica que un login con la contraseña conocida devuelve 401 | `deploy.test.js` y prueba de humo de CI |
 | 11 | Comodines `%`/`_` en la búsqueda del catálogo y `ORDER BY` con entrada del usuario | Diseño del catálogo | Se escapan los comodines; el orden solo elige entre fragmentos SQL fijos | Pruebas de búsqueda con `%` y con inyección SQL, y de orden inválido → 400 |
 
 **Estado de ZAP:** la corrida baseline previa a las correcciones reportó 65 reglas superadas y 2 advertencias
@@ -111,7 +124,7 @@ equivalentes y ejecutables; el job de SonarCloud queda listo en CI para producir
 |---|---|---|
 | Code smells / bugs (backend) | ESLint + `eslint-plugin-sonarjs` | 0 (hubo 3 al inicio, ya corregidos) |
 | Warnings (frontend) | oxlint | 0 (hubo 3 al inicio: efectos con `setState` y exportaciones mixtas) |
-| Duplicación de código | `jscpd` | 0.68 % de líneas (1 clon de 10 líneas); umbral en CI: 3 % |
+| Duplicación de código | `jscpd` | 0.53 % de líneas (1 clon de 10 líneas); umbral en CI: 3 % |
 | Vulnerabilidades de dependencias | `npm audit` | 0 en backend y frontend. Durante la entrega se detectó y evitó una dependencia de desarrollo vulnerable (`@vitest/mocker`, versiones ≤ 4.1.10) fijando `vitest ^4.1.11` |
 | Cobertura | Jest / Vitest | ver 4.1 |
 | **Accesibilidad de color (WCAG AA)** | Script de contraste propio | Todos los pares de texto ≥ 4.5:1 en claro y oscuro, incluidos los *badges* teñidos sobre la superficie más oscura (peor caso). Una primera versión tenía 5 combinaciones entre 4.15 y 4.49; se corrigieron con tokens de texto más oscuros |
@@ -202,7 +215,7 @@ Conclusiones honestas:
 | Reducir el costo del login: bcrypt nativo o Argon2 en hilos + escalado horizontal | ≥ 50 logins/s por instancia a costo equivalente a 12 | 19-oct-2026 |
 | Mover el JWT de `localStorage` a cookie `httpOnly` + `SameSite` + protección CSRF | El token no es legible desde JavaScript; pruebas de CSRF en CI | 19-oct-2026 |
 | Reescanear con ZAP (baseline → *full scan* autenticado) y cerrar el issue abierto | 0 alertas Alta/Media sobre `/api/auth/*` | 10-dic-2026 |
-| Sustituir el despliegue efímero por un host persistente | URL de staging con uptime verificable, misma imagen de GHCR | 19-oct-2026 |
+| Desplegar en un host persistente (Fly.io con volumen, o Render de pago con disco) y activar `RENDER_DEPLOY_HOOK` | URL de staging con uptime verificable; datos que sobreviven a un redespliegue (configuración ya lista en el repositorio) | 19-oct-2026 |
 | Pruebas end-to-end del flujo registro → panel (Playwright) en CI | Flujo completo en verde en cada PR; auditoría Lighthouse de accesibilidad ≥ 95 | 30-nov-2026 |
 | Carga de fotos reales del vehículo (almacenamiento de objetos + validación de tipo/tamaño) y reemplazo de la ilustración | Hasta 8 fotos por auto, ≤ 5 MB c/u, con pruebas de rechazo de archivos no permitidos | Sprint 2 (28-sep → 19-oct) |
 | **Innovación:** modelo para **predecir la probabilidad de cierre de venta por prospecto** y sugerir precio de referencia (kilometraje/año/zona), entrenado con el módulo de Reportes | Prototipo offline con AUC ≥ 0.7 sobre datos históricos simulados | Sprint 5 (16–30-nov-2026), como *spike* técnico |

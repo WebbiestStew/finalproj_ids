@@ -5,14 +5,20 @@ y el catálogo de vehículos, que publican y administran las concesionarias. Exp
 
 ## Ejecutar en local
 
+Lo más simple es desde la raíz del repositorio: `npm run setup` y `npm run dev` (levanta también el
+frontend). Solo el backend:
+
 ```bash
-cp .env.example .env   # y cambia JWT_SECRET
+cp .env.example .env   # y define JWT_SECRET (o corre `npm run setup` en la raíz, que lo genera)
 npm install
 npm run dev            # http://localhost:3000
 ```
 
-En desarrollo el CORS solo acepta `http://localhost:5173` (el frontend). Las demás
-variables opcionales están comentadas en `.env.example`.
+Si existe `frontend/dist` (tras `npm run build` en la raíz), el servidor también sirve la app
+compilada en `/`, con las rutas del cliente funcionando al refrescar. En desarrollo el CORS solo acepta
+`http://localhost:5173`; las variables opcionales están comentadas en `.env.example`. Al arrancar, si
+defines `ADMIN_EMAIL`/`ADMIN_PASSWORD` y `SEED_DEMO=true`, crea el administrador y los datos demo
+(idempotente); ver `docs/despliegue.md`.
 
 ## Endpoints
 
@@ -88,14 +94,18 @@ para las conclusiones y el plan.
 
 ## Docker
 
+El `Dockerfile` está en la raíz del repositorio y construye una sola imagen con la API y el
+frontend:
+
 ```bash
-docker build -t dauto-backend .
-docker run -p 3000:3000 -e JWT_SECRET=dev-secret dauto-backend
+docker build -t dauto ..
+docker run -p 3000:3000 -e JWT_SECRET=$(openssl rand -hex 32) -v dauto-data:/app/data dauto
 ```
 
 ## CI/CD
 
 `.github/workflows/ci-cd.yml`: auditoría de dependencias → lint → duplicación → pruebas con
-cobertura → build de Docker → push a GHCR → prueba de humo del contenedor publicado.
+cobertura → job del frontend → build de Docker → push a GHCR → prueba de humo de la app completa
+→ (opcional) despliegue al hosting.
 `.github/workflows/security-scan.yml`: OWASP ZAP baseline (y SonarCloud si se configuran
 `SONAR_TOKEN` y la variable `SONAR_ORGANIZATION`).

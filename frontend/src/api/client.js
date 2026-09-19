@@ -1,4 +1,7 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// Same origin by default: in production the backend serves this app, and in development
+// Vite proxies /api to it (see vite.config.js), so there is no CORS to configure.
+// Set VITE_API_URL only when the API lives on a different domain than the frontend.
+const API_URL = import.meta.env.VITE_API_URL ?? '';
 
 export class ApiError extends Error {
   constructor(message, status) {

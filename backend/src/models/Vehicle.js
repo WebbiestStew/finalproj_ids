@@ -46,6 +46,10 @@ class VehicleModel {
     this.db.prepare('DELETE FROM vehicles WHERE id = ?').run(id);
   }
 
+  countByDealer(dealerId) {
+    return this.db.prepare('SELECT COUNT(*) AS n FROM vehicles WHERE dealer_id = ?').get(dealerId).n;
+  }
+
   listByDealer(dealerId) {
     return this.db.prepare(`${BASE_SELECT} WHERE v.dealer_id = ? ORDER BY v.created_at DESC, v.id DESC`).all(dealerId);
   }

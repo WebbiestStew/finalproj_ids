@@ -1,0 +1,13 @@
+**/node_modules
+**/coverage
+**/dist
+**/.env
+backend/data
+.git
+.github
+.claude
+.agents
+docs
+*.pdf
+*.md
+!frontend/README.md

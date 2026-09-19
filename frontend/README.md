@@ -7,13 +7,17 @@ hay financiamiento ni citas — ver el README de la raíz para el panorama compl
 
 ## Correr en local
 
+Lo más simple es `npm run setup` y `npm run dev` desde la raíz (levanta también el backend). Solo el
+frontend:
+
 ```bash
 npm install
 npm run dev     # http://localhost:5173
 ```
 
-Apunta a `http://localhost:3000` por defecto; para otro backend define `VITE_API_URL`
-(ver `.env.example`).
+Las llamadas a `/api` van al mismo origen: en desarrollo Vite las redirige al backend (`:3000`, ver
+`vite.config.js`) y en producción el propio backend sirve esta app, así que no hay CORS que configurar.
+`VITE_API_URL` solo se define si la API vive en otro dominio (ver `.env.example`).
 
 ## Diseño
 

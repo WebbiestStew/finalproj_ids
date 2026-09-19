@@ -39,36 +39,23 @@ Los detalles y el por qué están en [`frontend/README.md`](frontend/README.md).
 
 ## Cómo correrlo
 
-Necesitas dos terminales — el backend y el frontend son proyectos separados.
-
-**Backend** (`backend/`):
+Necesitas Node 22 (mínimo 20.19). Desde la raíz:
 
 ```bash
-cd backend
-cp .env.example .env   # y ajusta JWT_SECRET
-npm install
-node scripts/seedDemo.js   # opcional: 12 autos y 2 concesionarias demo para ver el catálogo
-npm run dev
+npm run setup   # instala todo y crea los .env con un secreto y una contraseña de admin generados
+npm run dev     # backend y frontend juntos → http://localhost:5173
 ```
 
-Levanta en `http://localhost:3000`. Los detalles (endpoints, cómo crear un admin,
-Docker) están en [`backend/README.md`](backend/README.md).
+`setup` imprime las cuentas de prueba (administrador y dos concesionarias demo con 12 autos) y es seguro
+repetirlo. Si algo falla al conectar, casi siempre es que falta el backend: `npm run dev` levanta los dos.
 
-**Frontend** (`frontend/`):
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Levanta en `http://localhost:5173` y ya apunta al backend de arriba (el CORS del backend
-en desarrollo solo acepta ese origen). Sin el backend corriendo vas a ver "No se pudo
-conectar con el servidor" al registrarte — no es un bug, falta la otra mitad prendida.
+Con Docker: `npm run setup && docker compose up --build` → http://localhost:3000.
+Para publicarlo en internet (Render gratis o Fly.io con datos persistentes) está la guía completa en
+[`docs/despliegue.md`](docs/despliegue.md). Es una sola imagen: la API sirve también el frontend.
 
 ## Pruebas y CI/CD
 
-El backend tiene 104 pruebas con Jest y cobertura de 100% en líneas (el mínimo pedido
+El backend tiene 130 pruebas con Jest y cobertura de 100% en líneas (el mínimo pedido
 era 80%); el frontend tiene 132 con Vitest y ~98%. El pipeline de GitHub Actions corre,
 en cada push a `main`, auditoría de dependencias, lint, pruebas con cobertura, build
 del frontend, build de Docker y un despliegue de humo del contenedor publicado. Hay otro
@@ -87,10 +74,12 @@ por defecto); los números y el plan están en el informe.
 ## Estructura
 
 ```
-backend/    API REST — Express, SQLite, autenticación JWT
-frontend/   SPA en React (Vite) que consume la API
-docs/       informe de cierre: qué se planeó vs. qué se hizo, lecciones, plan de mejora
-adv_pr.pdf  el acta de constitución original del proyecto (secciones 1-3)
+backend/     API REST — Express, SQLite, JWT (y sirve el frontend compilado en producción)
+frontend/    SPA en React (Vite) que consume la API
+scripts/     setup y dev de un solo comando
+docs/        informe de cierre y guía de despliegue
+Dockerfile   una imagen con todo · docker-compose.yml · render.yaml · fly.toml
+adv_pr.pdf   el acta de constitución original del proyecto (secciones 1-3)
 ```
 
 ## El informe de cierre

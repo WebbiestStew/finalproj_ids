@@ -6,4 +6,7 @@ const STATUSES = ['disponible', 'apartado', 'vendido'];
 // vendido never shows in the public catalog: a sold car must not stay listed (risk R4).
 const PUBLIC_STATUSES = ['disponible', 'apartado'];
 
-module.exports = { COLORS, TRANSMISSIONS, FUELS, BODIES, STATUSES, PUBLIC_STATUSES };
+// One dealership can't flood the catalog (or the database) with listings.
+const MAX_VEHICLES_PER_DEALER = 500;
+
+module.exports = { COLORS, TRANSMISSIONS, FUELS, BODIES, STATUSES, PUBLIC_STATUSES, MAX_VEHICLES_PER_DEALER };
