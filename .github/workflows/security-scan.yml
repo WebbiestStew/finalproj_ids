@@ -102,7 +102,7 @@ jobs:
           task_url=$(grep '^ceTaskUrl=' .scannerwork/report-task.txt | cut -d= -f2-)
           key=$(grep '^projectKey=' .scannerwork/report-task.txt | cut -d= -f2-)
           for i in $(seq 1 36); do
-            st=$(curl -sf -u "$SONAR_TOKEN:" "$task_url" | jq -r .task.status)
+            st=$(curl -sS --fail-with-body -u "$SONAR_TOKEN:" "$task_url" | jq -r .task.status)
             [ "$st" = "SUCCESS" ] && break
             sleep 5
           done
@@ -113,9 +113,9 @@ jobs:
             scope="branch=$GITHUB_REF_NAME"
           fi
           metrics=bugs,vulnerabilities,code_smells,sqale_index,sqale_rating,reliability_rating,security_rating,coverage,duplicated_lines_density,ncloc,security_hotspots
-          curl -sf -u "$SONAR_TOKEN:" "$api/measures/component?component=$key&metricKeys=$metrics&$scope" > sonar-report/metricas.json
-          curl -sf -u "$SONAR_TOKEN:" "$api/qualitygates/project_status?projectKey=$key&$scope" > sonar-report/quality-gate.json
-          curl -sf -u "$SONAR_TOKEN:" "$api/issues/search?componentKeys=$key&resolved=false&ps=100&$scope" > sonar-report/hallazgos.json
+          curl -sS --fail-with-body -u "$SONAR_TOKEN:" "$api/measures/component?component=$key&metricKeys=$metrics&$scope" > sonar-report/metricas.json
+          curl -sS --fail-with-body -u "$SONAR_TOKEN:" "$api/qualitygates/project_status?projectKey=$key&$scope" > sonar-report/quality-gate.json
+          curl -sS --fail-with-body -u "$SONAR_TOKEN:" "$api/issues/search?componentKeys=$key&resolved=false&ps=100&$scope" > sonar-report/hallazgos.json
           {
             echo "## Reporte de SonarCloud ($key, $scope)"
             echo
