@@ -89,3 +89,42 @@ jobs:
         uses: sonarsource/sonarqube-scan-action@v4
         env:
           SONAR_HOST_URL: https://sonarcloud.io
+
+      # Espera a que SonarCloud termine de procesar el analisis y guarda sus metricas, el
+      # resultado del quality gate y los hallazgos abiertos como reporte (artefacto + resumen).
+      - name: Exportar reporte de SonarCloud
+        if: ${{ env.SONAR_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          api=https://sonarcloud.io/api
+          task_url=$(grep '^ceTaskUrl=' .scannerwork/report-task.txt | cut -d= -f2-)
+          key=$(grep '^projectKey=' .scannerwork/report-task.txt | cut -d= -f2-)
+          for i in $(seq 1 36); do
+            st=$(curl -sf -u "$SONAR_TOKEN:" "$task_url" | jq -r .task.status)
+            [ "$st" = "SUCCESS" ] && break
+            sleep 5
+          done
+          mkdir -p sonar-report
+          metrics=bugs,vulnerabilities,code_smells,sqale_index,sqale_rating,reliability_rating,security_rating,coverage,duplicated_lines_density,ncloc,security_hotspots
+          curl -sf -u "$SONAR_TOKEN:" "$api/measures/component?component=$key&metricKeys=$metrics" > sonar-report/metricas.json
+          curl -sf -u "$SONAR_TOKEN:" "$api/qualitygates/project_status?projectKey=$key" > sonar-report/quality-gate.json
+          curl -sf -u "$SONAR_TOKEN:" "$api/issues/search?componentKeys=$key&resolved=false&ps=100" > sonar-report/hallazgos.json
+          {
+            echo "## Reporte de SonarCloud ($key)"
+            echo
+            echo "Quality gate: $(jq -r .projectStatus.status sonar-report/quality-gate.json)"
+            echo
+            echo "| Metrica | Valor |"
+            echo "|---|---|"
+            jq -r '.component.measures[] | "| \(.metric) | \(.value) |"' sonar-report/metricas.json
+            echo
+            echo "### Hallazgos abiertos"
+            jq -r '.issues[] | "- [\(.type)/\(.severity)] \(.rule) en \(.component | sub("^[^:]*:";"")):\(.line // "-"): \(.message)"' sonar-report/hallazgos.json
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Publicar reporte de SonarCloud
+        if: ${{ env.SONAR_TOKEN != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonarcloud-report
+          path: sonar-report
