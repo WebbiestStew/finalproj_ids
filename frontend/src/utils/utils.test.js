@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { scoreOf } from './passwordScore';
-import { MIN_PASSWORD_LENGTH, validateRegistration } from './validateRegistration';
+import { isValidEmail, MIN_PASSWORD_LENGTH, validateRegistration } from './validateRegistration';
 
 describe('scoreOf', () => {
   it('es 0 para una contraseña vacía o muy corta', () => {
@@ -40,5 +40,25 @@ describe('validateRegistration', () => {
 
   it(`exige al menos ${MIN_PASSWORD_LENGTH} caracteres de contraseña`, () => {
     expect(validateRegistration({ ...valid, password: '1234567' }).password).toBeDefined();
+  });
+});
+
+describe('isValidEmail', () => {
+  it.each(['ana@dominio.com', 'a.b@c.mx', 'x@y.z.co'])('acepta %s', (email) => {
+    expect(isValidEmail(email)).toBe(true);
+  });
+
+  it.each(['', 'sin-arroba.com', '@dominio.com', 'ana@dominio', 'ana@.com', 'ana@dominio.', 'a na@dominio.com'])(
+    'rechaza "%s"',
+    (email) => {
+      expect(isValidEmail(email)).toBe(false);
+    },
+  );
+
+  it('responde rápido con entradas hostiles (sin retroceso exponencial)', () => {
+    const hostile = `${'a@'.repeat(20000)}!`;
+    const start = performance.now();
+    isValidEmail(hostile);
+    expect(performance.now() - start).toBeLessThan(50);
   });
 });

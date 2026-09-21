@@ -78,7 +78,7 @@ export default function Register() {
         </>
       }
     >
-      <div className="segmented" role="radiogroup" aria-label="Tipo de cuenta" onKeyDown={handleRoleKeys}>
+      <div className="segmented" role="radiogroup" aria-label="Tipo de cuenta" tabIndex={-1} onKeyDown={handleRoleKeys}>
         {ROLES.map(({ value, label }) => (
           <button
             key={value}
