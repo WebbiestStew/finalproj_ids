@@ -87,6 +87,10 @@ jobs:
       - name: SonarCloud Scan
         if: ${{ env.SONAR_TOKEN != '' }}
         uses: sonarsource/sonarqube-scan-action@v4
+        with:
+          # El proyecto de SonarCloud (plan gratuito) solo sirve la rama principal, que quedo
+          # registrada como "master"; se analiza bajo ese nombre para que el reporte sea el vigente.
+          args: ${{ github.event_name != 'pull_request' && '-Dsonar.branch.name=master' || '' }}
         env:
           SONAR_HOST_URL: https://sonarcloud.io
 
@@ -94,8 +98,6 @@ jobs:
       # resultado del quality gate y los hallazgos abiertos como reporte (artefacto + resumen).
       - name: Exportar reporte de SonarCloud
         if: ${{ env.SONAR_TOKEN != '' }}
-        env:
-          PR_NUMBER: ${{ github.event.number }}
         run: |
           set -euo pipefail
           api=https://sonarcloud.io/api
@@ -107,17 +109,12 @@ jobs:
             sleep 5
           done
           mkdir -p sonar-report
-          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-            scope="pullRequest=$PR_NUMBER"
-          else
-            scope="branch=$GITHUB_REF_NAME"
-          fi
           metrics=bugs,vulnerabilities,code_smells,sqale_index,sqale_rating,reliability_rating,security_rating,coverage,duplicated_lines_density,ncloc,security_hotspots
-          curl -sS --fail-with-body -u "$SONAR_TOKEN:" "$api/measures/component?component=$key&metricKeys=$metrics&$scope" > sonar-report/metricas.json
-          curl -sS --fail-with-body -u "$SONAR_TOKEN:" "$api/qualitygates/project_status?projectKey=$key&$scope" > sonar-report/quality-gate.json
-          curl -sS --fail-with-body -u "$SONAR_TOKEN:" "$api/issues/search?componentKeys=$key&resolved=false&ps=100&$scope" > sonar-report/hallazgos.json
+          curl -sS --fail-with-body -u "$SONAR_TOKEN:" "$api/measures/component?component=$key&metricKeys=$metrics" > sonar-report/metricas.json
+          curl -sS --fail-with-body -u "$SONAR_TOKEN:" "$api/qualitygates/project_status?projectKey=$key" > sonar-report/quality-gate.json
+          curl -sS --fail-with-body -u "$SONAR_TOKEN:" "$api/issues/search?componentKeys=$key&resolved=false&ps=100" > sonar-report/hallazgos.json
           {
-            echo "## Reporte de SonarCloud ($key, $scope)"
+            echo "## Reporte de SonarCloud ($key)"
             echo
             echo "Quality gate: $(jq -r .projectStatus.status sonar-report/quality-gate.json)"
             echo
