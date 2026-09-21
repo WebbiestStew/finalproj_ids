@@ -1,0 +1,43 @@
+
+> dauto-backend@1.0.0 test:coverage
+> jest --runInBand --coverage
+
+PASS tests/vehicles.test.js
+PASS tests/deploy.test.js
+PASS tests/hardening.test.js
+PASS tests/auth.test.js
+PASS tests/middleware.test.js
+PASS tests/db.test.js
+-----------------------|---------|----------|---------|---------|-------------------
+File                   | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-----------------------|---------|----------|---------|---------|-------------------
+All files              |     100 |    93.89 |     100 |     100 |                   
+ src                   |     100 |    92.59 |     100 |     100 |                   
+  app.js               |     100 |    93.33 |     100 |     100 | 52-61             
+  bootstrap.js         |     100 |    91.66 |     100 |     100 | 14                
+ src/config            |     100 |    57.14 |     100 |     100 |                   
+  db.js                |     100 |    57.14 |     100 |     100 | 6,10              
+ src/controllers       |     100 |      100 |     100 |     100 |                   
+  authController.js    |     100 |      100 |     100 |     100 |                   
+  vehicleController.js |     100 |      100 |     100 |     100 |                   
+ src/middleware        |     100 |      100 |     100 |     100 |                   
+  auth.js              |     100 |      100 |     100 |     100 |                   
+ src/models            |     100 |     87.5 |     100 |     100 |                   
+  User.js              |     100 |      100 |     100 |     100 |                   
+  Vehicle.js           |     100 |     87.5 |     100 |     100 | 100               
+ src/routes            |     100 |      100 |     100 |     100 |                   
+  authRoutes.js        |     100 |      100 |     100 |     100 |                   
+  vehicleRoutes.js     |     100 |      100 |     100 |     100 |                   
+ src/seed              |     100 |      100 |     100 |     100 |                   
+  demo.js              |     100 |      100 |     100 |     100 |                   
+ src/utils             |     100 |      100 |     100 |     100 |                   
+  http.js              |     100 |      100 |     100 |     100 |                   
+  validators.js        |     100 |      100 |     100 |     100 |                   
+  vehicleOptions.js    |     100 |      100 |     100 |     100 |                   
+-----------------------|---------|----------|---------|---------|-------------------
+
+Test Suites: 6 passed, 6 total
+Tests:       130 passed, 130 total
+Snapshots:   0 total
+Time:        2.731 s
+Ran all test suites.

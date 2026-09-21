@@ -1,0 +1,48 @@
+
+> frontend@0.0.0 test:coverage
+> vitest run --coverage
+
+
+ RUN  v4.1.11 /Users/diegovillarreal/Desktop/school/fifth semester/se/finalproj/frontend
+      Coverage enabled with v8
+
+
+ Test Files  16 passed (16)
+      Tests  132 passed (132)
+   Start at  16:28:18
+   Duration  5.56s (transform 1.16s, setup 7.47s, import 2.17s, tests 9.93s, environment 11.97s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   97.34 |     87.5 |   96.48 |   97.81 |                   
+ src               |     100 |       50 |     100 |     100 |                   
+  App.jsx          |     100 |       50 |     100 |     100 | 36-49             
+ src/api           |   97.05 |    96.15 |   93.75 |   96.96 |                   
+  client.js        |   97.05 |    96.15 |   93.75 |   96.96 | 57                
+ src/components    |    93.6 |    80.41 |   91.48 |   93.69 |                   
+  CarScroll.jsx    |   94.28 |    81.81 |   92.85 |   93.54 | 92-98             
+  FormAlert.jsx    |     100 |       60 |     100 |     100 | 14-17             
+  Icon.jsx         |     100 |       60 |     100 |     100 | 137-139           
+  Navbar.jsx       |     100 |       50 |     100 |     100 | 23                
+  Reveal.jsx       |   71.42 |    55.55 |      75 |      75 | 13-15             
+  UserMenu.jsx     |   94.28 |    72.72 |   81.81 |   93.93 | 112-117           
+ src/context       |   97.87 |    81.25 |     100 |     100 |                   
+  AuthContext.jsx  |   97.56 |    78.57 |     100 |     100 | 22-25,34          
+ src/pages         |   97.92 |    87.44 |   98.14 |   98.65 |                   
+  Catalog.jsx      |   96.42 |    89.83 |   97.14 |   95.94 | 41,86,121         
+  Dashboard.jsx    |   92.85 |    84.61 |    87.5 |   95.83 | 118               
+  Inventory.jsx    |      98 |     92.3 |     100 |     100 | 25-28             
+  Landing.jsx      |     100 |     87.5 |     100 |     100 | 49-68             
+  Register.jsx     |      98 |    88.23 |     100 |     100 | 22,41-43          
+  ...cleDetail.jsx |     100 |     87.5 |     100 |     100 | 23-26             
+  VehicleForm.jsx  |     100 |    81.25 |     100 |     100 | ...61,195-198,211 
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 97.34% ( 624/641 )
+Branches     : 87.5% ( 378/432 )
+Functions    : 96.48% ( 192/199 )
+Lines        : 97.81% ( 538/550 )
+================================================================================
