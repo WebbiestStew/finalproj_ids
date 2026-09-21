@@ -68,7 +68,7 @@ Si solo tienes cinco minutos, en este orden:
 ## Pruebas y CI/CD
 
 El backend tiene 130 pruebas con Jest y cobertura de 100% en líneas (el mínimo pedido
-era 80%); el frontend tiene 132 con Vitest y ~98%. El pipeline de GitHub Actions corre,
+era 80%); el frontend tiene 143 con Vitest y ~98%. El pipeline de GitHub Actions corre,
 en cada push a `main`, auditoría de dependencias, lint, pruebas con cobertura, build
 del frontend, build de Docker y un despliegue de humo del contenedor publicado. Hay otro
 workflow con un escaneo de seguridad (OWASP ZAP). No siempre estuvieron en verde — la

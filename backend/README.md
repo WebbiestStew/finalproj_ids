@@ -107,5 +107,5 @@ docker run -p 3000:3000 -e JWT_SECRET=$(openssl rand -hex 32) -v dauto-data:/app
 `.github/workflows/ci-cd.yml`: auditoría de dependencias → lint → duplicación → pruebas con
 cobertura → job del frontend → build de Docker → push a GHCR → prueba de humo de la app completa
 → (opcional) despliegue al hosting.
-`.github/workflows/security-scan.yml`: OWASP ZAP baseline (y SonarCloud si se configuran
-el secreto `SONAR_TOKEN`).
+`.github/workflows/security-scan.yml`: OWASP ZAP baseline y SonarCloud (calidad, deuda técnica y
+*quality gate*; requiere el secreto `SONAR_TOKEN`).

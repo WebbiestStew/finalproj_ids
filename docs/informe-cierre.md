@@ -46,8 +46,8 @@ funcionalidad central del acta (secciones 1.1 y 2.1, historia de usuario 1 y 2):
 
 | | Pruebas | Statements | Branches | Functions | Lines | Umbral |
 |---|---|---|---|---|---|---|
-| Backend (Jest + supertest) | 130 | 100 % | 92.94 % | 100 % | 100 % | 80 % (rompe la build) |
-| Frontend (Vitest + Testing Library) | 132 | 97.34 % | 87.50 % | 96.48 % | 97.81 % | — |
+| Backend (Jest + supertest) | 130 | 100 % | 93.89 % | 100 % | 100 % | 80 % (rompe la build) |
+| Frontend (Vitest + Testing Library) | 143 | 97.36 % | 87.64 % | 96.50 % | 97.83 % | — |
 
 Las pruebas del backend cubren registro/login por rol, roles, middleware, y las pruebas de seguridad
 negativa (SQLi, XSS almacenado, tokens con otro algoritmo/sin firma/expirados/con otro secreto, JSON mal
@@ -65,8 +65,8 @@ accesibilidad (`role="alert"`, `aria-invalid`, `aria-describedby`, `aria-pressed
 3. **`build-and-push`** (solo `main`, requiere los dos anteriores): imagen Docker (usuario no root) a GHCR.
 4. **`deploy-test-env`**: ejecuta la imagen publicada en un contenedor efímero y valida `/health` y un registro real.
 
-`.github/workflows/security-scan.yml` corre OWASP ZAP contra el servidor levantado (y SonarCloud si se
-configura `SONAR_TOKEN`).
+`.github/workflows/security-scan.yml` corre OWASP ZAP contra el servidor levantado y SonarCloud (con el secreto
+`SONAR_TOKEN`); este último job además exporta métricas, *quality gate* y hallazgos como reporte.
 
 5. **`deploy-hosting`**: si existe el secreto `RENDER_DEPLOY_HOOK`, dispara el despliegue en Render tras pasar
    todo lo anterior; sin el secreto se omite y el pipeline queda en verde.
@@ -107,9 +107,11 @@ Vías complementarias: OWASP ZAP baseline en CI, pruebas manuales dirigidas y re
 | 11 | Comodines `%`/`_` en la búsqueda del catálogo y `ORDER BY` con entrada del usuario | Diseño del catálogo | Se escapan los comodines; el orden solo elige entre fragmentos SQL fijos | Pruebas de búsqueda con `%` y con inyección SQL, y de orden inválido → 400 |
 
 **Estado de ZAP:** la corrida baseline previa a las correcciones reportó 65 reglas superadas y 2 advertencias
-(las de los hallazgos 2 y 3); se abrió automáticamente el issue de GitHub *"ZAP Scan Baseline Report"*. Las dos
-cabeceras que las originaban están cubiertas por pruebas automatizadas; el siguiente escaneo en CI debe
-reportar 0 advertencias, y el issue se cierra al confirmarlo.
+(las de los hallazgos 2 y 3); se abrió automáticamente el issue de GitHub *"ZAP Scan Baseline Report"*. Tras
+las correcciones, una advertencia adicional (*Non-Storable Content*) era la consecuencia esperada de
+`Cache-Control: no-store` y se registró como decisión de diseño en `.zap/rules.tsv`. La corrida final reporta
+**0 fallos, 0 advertencias, 66 reglas superadas y 1 ignorada**, y el issue se cerró solo
+(*"All the alerts have been resolved"*). Reporte: `docs/reportes/zap-baseline-final.txt`.
 
 **Riesgo aceptado y documentado:** el JWT se guarda en `localStorage` (legible por cualquier script de la
 página). Es el patrón habitual de una SPA con API sin estado; se mitiga con la validación anti-XSS de entrada y
@@ -117,8 +119,31 @@ el escapado por defecto de React, y su migración a cookie `httpOnly` (con prote
 
 ### 5.2 Calidad de código y métricas
 
-No hay servidor SonarQube ni cuenta SonarCloud disponibles, así que se usó un conjunto de herramientas
-equivalentes y ejecutables; el job de SonarCloud queda listo en CI para producir el reporte oficial.
+El análisis oficial se hace con **SonarCloud** (la versión en la nube de SonarQube) sobre backend y frontend
+(4 616 líneas de código), integrado al workflow `security-scan.yml`. El job exporta las métricas, el resultado
+del *quality gate* y los hallazgos abiertos a `docs/reportes/sonarcloud/` y como artefacto de cada corrida.
+
+| Métrica de SonarCloud | Primer análisis | Tras corregir |
+|---|---|---|
+| Quality gate (*Sonar way*) | Sin calcular (primera corrida) | **Aprobado (OK)** |
+| Bugs | 0 | 0 |
+| Vulnerabilidades | 0 | 0 |
+| Security hotspots | 0 | 0 |
+| **Code smells** | **2** | **0** |
+| **Deuda técnica** (`sqale_index`) | **25 min** | **0 min** |
+| Ratings de seguridad, fiabilidad y mantenibilidad | A / A / A | A / A / A |
+| Cobertura | 93.6 % | 93.6 % (código nuevo: 100 %) |
+| Duplicación | 0.0 % | 0.0 % |
+
+Los dos *code smells* del primer análisis eran reales y se corrigieron:
+
+1. `S8786` en `validateRegistration.js`: la expresión regular del correo (`^\S+@\S+\.\S+$`) tiene retroceso
+   super-lineal y era un riesgo menor de denegación de servicio por expresiones regulares (ReDoS). Se sustituyó
+   por una comprobación lineal (`isValidEmail`) con pruebas, incluida una con entrada hostil de 40 000 caracteres.
+2. `S6852` en `Register.jsx`: el grupo de selección de rol (`role="radiogroup"`) no era enfocable; se añadió
+   `tabIndex={-1}` sin cambiar la navegación por teclado.
+
+Además del análisis oficial, estas herramientas locales corren en cada push:
 
 | Métrica | Herramienta | Resultado |
 |---|---|---|
@@ -126,7 +151,7 @@ equivalentes y ejecutables; el job de SonarCloud queda listo en CI para producir
 | Warnings (frontend) | oxlint | 0 (hubo 3 al inicio: efectos con `setState` y exportaciones mixtas) |
 | Duplicación de código | `jscpd` | 0.53 % de líneas (1 clon de 10 líneas); umbral en CI: 3 % |
 | Vulnerabilidades de dependencias | `npm audit` | 0 en backend y frontend. Durante la entrega se detectó y evitó una dependencia de desarrollo vulnerable (`@vitest/mocker`, versiones ≤ 4.1.10) fijando `vitest ^4.1.11` |
-| Cobertura | Jest / Vitest | ver 4.1 |
+| Cobertura | Jest / Vitest | ver 4.1 (frontend: 143 pruebas) |
 | **Accesibilidad de color (WCAG AA)** | Script de contraste propio | Todos los pares de texto ≥ 4.5:1 en claro y oscuro, incluidos los *badges* teñidos sobre la superficie más oscura (peor caso). Una primera versión tenía 5 combinaciones entre 4.15 y 4.49; se corrigieron con tokens de texto más oscuros |
 
 ### 5.3 Rendimiento (requisito no funcional de la sección 2.1)
@@ -171,10 +196,10 @@ Conclusiones honestas:
 | Punto | Planificado | Ejecutado | Desviación |
 |---|---|---|---|
 | Módulo + JWT/roles | Auth con roles admin/usuario | 3 roles reales del dominio, más un frontend completo | Ampliación: el módulo se validó de punta a punta, no solo por API |
-| Cobertura ≥ 80 % | Backend | Backend 100 % líneas; **además** frontend con 53 pruebas y 97.67 % | Por encima de lo pedido |
+| Cobertura ≥ 80 % | Backend | Backend 100 % líneas; **además** frontend con 143 pruebas y 97.83 % de líneas | Por encima de lo pedido |
 | CI/CD con despliegue a entorno de prueba | Verde desde el primer push, entorno persistente | Verde tras 3 correcciones; entorno efímero; ahora cubre también el frontend | **Doble desviación real** (sin hosting de prueba; primer intento en rojo) |
 | Escaneo OWASP ZAP | XSS/SQLi | ZAP baseline en CI + pruebas manuales; dos advertencias reales corregidas | Se dividió en dos vías por falta de Docker local |
-| SonarQube | Deuda técnica y code smells | `eslint-plugin-sonarjs` + oxlint + `jscpd` + `npm audit`; job de SonarCloud listo pero **sin activar** | **Desviación real:** sin cuenta/servidor SonarQube |
+| SonarQube | Deuda técnica y code smells | SonarCloud activado en CI: 2 code smells y 25 min de deuda en el primer análisis, **0 y 0 min** tras corregirlos; *quality gate* aprobado | Se usó SonarCloud (misma tecnología, en la nube) en lugar de un servidor propio; la activación llegó el último día |
 | Requisito de 1 000 usuarios concurrentes | (sección 2.1) | Medido; **no demostrado**, cuello de botella identificado | Pendiente de validar en Linux |
 | Catálogo de vehículos | No pedido en el checklist de esta entrega | API con propiedad por concesionaria + catálogo + inventario, con pruebas | Ampliación: primer entregable funcional de negocio, no solo autenticación |
 | Diseño de interfaz | No especificado en el checklist | Rediseño completo con lenguaje de diseño de Apple, WCAG AA medido, modos claro/oscuro y preferencias de accesibilidad | Ampliación de alcance |
@@ -184,7 +209,10 @@ Conclusiones honestas:
 1. **Validar el formato no basta.** SQLi se bloqueó gratis con consultas parametrizadas y `zod`, pero `<script>` en
    el nombre pasaba: cada campo libre necesita una regla pensada para el contexto donde se va a renderizar.
 2. **Las herramientas asumen infraestructura que no siempre existe** (Docker para ZAP, un servidor para SonarQube).
-   Definir desde el Sprint 0 qué se valida en local y qué solo en CI evita replanificar a la mitad.
+   Definir desde el Sprint 0 qué se valida en local y qué solo en CI evita replanificar a la mitad. Aquí la
+   solución fue SonarCloud, pero se activó tarde: el primer análisis real encontró 2 problemas que las
+   herramientas locales equivalentes no habían visto (una regex con retroceso y un fallo de accesibilidad), y
+   es un argumento para activarlo desde el primer sprint.
 3. **Un umbral en la configuración (cobertura, duplicación) es una regla; una buena práctica revisada a mano es un deseo.**
 4. **"Escribir" un pipeline no es "tener" un pipeline.** El primer push dejó todo en rojo por tres causas que no se ven
    leyendo el YAML: (a) Docker exige nombres de imagen en minúsculas y el repositorio tiene mayúsculas; (b) la acción de
@@ -210,7 +238,7 @@ Conclusiones honestas:
 
 | Acción | Meta medible | Fecha objetivo |
 |---|---|---|
-| Activar SonarCloud (secreto `SONAR_TOKEN`) | *Maintainability rating* A y 0 code smells nuevos por PR | 19-oct-2026 |
+| Hacer que el *quality gate* de SonarCloud bloquee el merge (protección de rama + análisis de PR) | 0 code smells y 0 vulnerabilidades nuevas por PR; cobertura de código nuevo ≥ 80 % | 19-oct-2026 |
 | Validar el requisito de 1 000 usuarios en Linux con rampa (k6 o autocannon en CI/staging) | 1 000 usuarios autenticados, p99 < 2 s, 0 errores; y login sostenido ≥ 50/s | 30-nov-2026 (Sprint 6) |
 | Reducir el costo del login: bcrypt nativo o Argon2 en hilos + escalado horizontal | ≥ 50 logins/s por instancia a costo equivalente a 12 | 19-oct-2026 |
 | Mover el JWT de `localStorage` a cookie `httpOnly` + `SameSite` + protección CSRF | El token no es legible desde JavaScript; pruebas de CSRF en CI | 19-oct-2026 |

@@ -8,7 +8,7 @@ archivos quedan en el repo).
 | Reporte | Qué muestra | Cómo se regenera |
 |---|---|---|
 | [`pruebas-backend.txt`](pruebas-backend.txt) | 130 pruebas Jest, cobertura 100 % líneas / 93.9 % ramas (mínimo pedido: 80 %) | `cd backend && npm run test:coverage` |
-| [`pruebas-frontend.txt`](pruebas-frontend.txt) | 132 pruebas Vitest, cobertura 97.8 % líneas / 87.5 % ramas | `cd frontend && npm run test:coverage` |
+| [`pruebas-frontend.txt`](pruebas-frontend.txt) | 143 pruebas Vitest, cobertura 97.8 % líneas / 87.6 % ramas | `cd frontend && npm run test:coverage` |
 | [`duplicacion-backend.txt`](duplicacion-backend.txt) | jscpd: 0.53 % de líneas duplicadas (umbral 3 %) | `cd backend && npm run duplication` |
 | [`zap-baseline-final.txt`](zap-baseline-final.txt) | OWASP ZAP, última corrida: **0 fallos, 0 advertencias, 66 reglas pasadas, 1 ignorada** | workflow *Seguridad y calidad de codigo* |
 | [`zap-baseline-1-warn.html`](zap-baseline-1-warn.html) / [`.md`](zap-baseline-1-warn.md) | Reporte completo de la corrida anterior, con la única advertencia (*Non-Storable Content*) | ídem |
@@ -26,10 +26,21 @@ La regla ignorada (10049, *Non-Storable Content*) es una decisión de diseño: l
 `Cache-Control: no-store` porque una corrida anterior marcó lo contrario como hallazgo. Está justificada en
 [`.zap/rules.tsv`](../../.zap/rules.tsv).
 
-## Calidad de código (SonarQube)
+## Calidad de código (SonarQube / SonarCloud)
 
-El workflow ya tiene el job de SonarCloud y `sonar-project.properties` cubre backend y frontend con sus
-reportes de cobertura, pero **el análisis se omite hasta que se configure el secreto
-`SONAR_TOKEN`** (no hay servidor SonarQube local ni cuenta). Mientras tanto, las métricas equivalentes
-salen de ESLint con `eslint-plugin-sonarjs` (0 code smells), oxlint (0 avisos), jscpd (0.53 % de duplicación)
-y `npm audit` (0 vulnerabilidades); los números y su comparación están en la sección 4 del informe.
+Análisis oficial con **SonarCloud** (`webbieststew_finalproj_ids`), ejecutado por el workflow *Seguridad y calidad
+de codigo*. Resultado tras corregir los dos hallazgos del primer análisis
+([`sonarcloud/`](sonarcloud/): `metricas.json`, `quality-gate.json`, `hallazgos.json`):
+
+| | Primer análisis | Actual |
+|---|---|---|
+| Quality gate | sin calcular | **OK** |
+| Bugs / vulnerabilidades / hotspots | 0 / 0 / 0 | 0 / 0 / 0 |
+| Code smells | 2 | **0** |
+| Deuda técnica | 25 min | **0 min** |
+| Ratings (seguridad / fiabilidad / mantenibilidad) | A / A / A | A / A / A |
+| Cobertura / duplicación | 93.6 % / 0.0 % | 93.6 % / 0.0 % |
+
+Los dos hallazgos (regex con retroceso en `validateRegistration.js` y un `radiogroup` no enfocable en
+`Register.jsx`) y su corrección están en la sección 5.2 del [informe de cierre](../informe-cierre.md).
+Además corren en cada push: ESLint con `eslint-plugin-sonarjs`, oxlint, jscpd y `npm audit`.
