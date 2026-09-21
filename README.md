@@ -53,6 +53,18 @@ Con Docker: `npm run setup && docker compose up --build` → http://localhost:30
 Para publicarlo en internet (Render gratis o Fly.io con datos persistentes) está la guía completa en
 [`docs/despliegue.md`](docs/despliegue.md). Es una sola imagen: la API sirve también el frontend.
 
+## Para revisar
+
+Si solo tienes cinco minutos, en este orden:
+
+1. **La app en línea** (el enlace va en la entrega): entra al catálogo, filtra por marca y abre una ficha.
+2. **Inicia sesión como concesionaria** para ver el inventario y publicar un auto. Las cuentas
+   de prueba van en el mensaje de entrega, no en el repo. En Render gratis el primer acceso
+   tarda ~30 s (el servicio duerme) y los datos se reinician al reposar: es esperado.
+3. **La pestaña Actions de GitHub**: dos workflows en verde (CI/CD con build de Docker y
+   despliegue de humo, y seguridad con OWASP ZAP).
+4. **[`docs/informe-cierre.md`](docs/informe-cierre.md)**: hallazgos de seguridad, métricas y plan de mejora.
+
 ## Pruebas y CI/CD
 
 El backend tiene 130 pruebas con Jest y cobertura de 100% en líneas (el mínimo pedido

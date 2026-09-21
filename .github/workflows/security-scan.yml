@@ -45,6 +45,7 @@ jobs:
         with:
           target: 'http://localhost:3000'
           fail_action: false
+          rules_file_name: '.zap/rules.tsv'
           artifact_name: 'zap-baseline-report'
 
   code-quality:
