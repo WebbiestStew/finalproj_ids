@@ -108,4 +108,4 @@ docker run -p 3000:3000 -e JWT_SECRET=$(openssl rand -hex 32) -v dauto-data:/app
 cobertura → job del frontend → build de Docker → push a GHCR → prueba de humo de la app completa
 → (opcional) despliegue al hosting.
 `.github/workflows/security-scan.yml`: OWASP ZAP baseline (y SonarCloud si se configuran
-`SONAR_TOKEN` y la variable `SONAR_ORGANIZATION`).
+el secreto `SONAR_TOKEN`).

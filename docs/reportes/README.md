@@ -29,7 +29,7 @@ La regla ignorada (10049, *Non-Storable Content*) es una decisión de diseño: l
 ## Calidad de código (SonarQube)
 
 El workflow ya tiene el job de SonarCloud y `sonar-project.properties` cubre backend y frontend con sus
-reportes de cobertura, pero **el job se salta hasta que se configuren `SONAR_TOKEN` y la variable
-`SONAR_ORGANIZATION`** (no hay servidor SonarQube local ni cuenta). Mientras tanto, las métricas equivalentes
+reportes de cobertura, pero **el análisis se omite hasta que se configure el secreto
+`SONAR_TOKEN`** (no hay servidor SonarQube local ni cuenta). Mientras tanto, las métricas equivalentes
 salen de ESLint con `eslint-plugin-sonarjs` (0 code smells), oxlint (0 avisos), jscpd (0.53 % de duplicación)
 y `npm audit` (0 vulnerabilidades); los números y su comparación están en la sección 4 del informe.

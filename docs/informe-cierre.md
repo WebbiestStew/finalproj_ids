@@ -210,7 +210,7 @@ Conclusiones honestas:
 
 | Acción | Meta medible | Fecha objetivo |
 |---|---|---|
-| Activar SonarCloud (`SONAR_TOKEN` + `SONAR_ORGANIZATION`) | *Maintainability rating* A y 0 code smells nuevos por PR | 19-oct-2026 |
+| Activar SonarCloud (secreto `SONAR_TOKEN`) | *Maintainability rating* A y 0 code smells nuevos por PR | 19-oct-2026 |
 | Validar el requisito de 1 000 usuarios en Linux con rampa (k6 o autocannon en CI/staging) | 1 000 usuarios autenticados, p99 < 2 s, 0 errores; y login sostenido ≥ 50/s | 30-nov-2026 (Sprint 6) |
 | Reducir el costo del login: bcrypt nativo o Argon2 en hilos + escalado horizontal | ≥ 50 logins/s por instancia a costo equivalente a 12 | 19-oct-2026 |
 | Mover el JWT de `localStorage` a cookie `httpOnly` + `SameSite` + protección CSRF | El token no es legible desde JavaScript; pruebas de CSRF en CI | 19-oct-2026 |

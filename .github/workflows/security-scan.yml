@@ -51,32 +51,41 @@ jobs:
   code-quality:
     name: SonarCloud (deuda tecnica / code smells)
     runs-on: ubuntu-latest
-    if: ${{ vars.SONAR_ORGANIZATION != '' }}
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
+      - name: Sin SONAR_TOKEN el analisis se omite
+        if: ${{ env.SONAR_TOKEN == '' }}
+        run: echo "SONAR_TOKEN no esta configurado; se omite SonarCloud (ver docs/reportes/README.md)."
+
       - uses: actions/checkout@v4
+        if: ${{ env.SONAR_TOKEN != '' }}
         with:
           fetch-depth: 0
 
       - uses: actions/setup-node@v4
+        if: ${{ env.SONAR_TOKEN != '' }}
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
       - name: Cobertura del backend (para que Sonar la importe)
+        if: ${{ env.SONAR_TOKEN != '' }}
         working-directory: backend
         run: |
           npm ci
           npm run test:coverage
 
       - name: Cobertura del frontend (para que Sonar la importe)
+        if: ${{ env.SONAR_TOKEN != '' }}
         working-directory: frontend
         run: |
           npm ci
           npm run test:coverage
 
       - name: SonarCloud Scan
+        if: ${{ env.SONAR_TOKEN != '' }}
         uses: sonarsource/sonarqube-scan-action@v4
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
