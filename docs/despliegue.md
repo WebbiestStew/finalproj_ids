@@ -58,7 +58,9 @@ y `ADMIN_PASSWORD`.
 3. Cuando pregunte, define `ADMIN_EMAIL` y `ADMIN_PASSWORD`. `JWT_SECRET` se genera solo.
 4. Espera el primer despliegue (unos minutos, construye la imagen) y abre la URL `*.onrender.com`.
 
-**Despliegue automático desde el pipeline (opcional):** en el servicio de Render, *Settings → Deploy
+Con la configuración incluida, **cada push a la rama principal vuelve a desplegar solo** (`autoDeploy: true`).
+
+**Alternativa más estricta (opcional): desplegar solo si el pipeline pasa.** Pon `autoDeploy: false` en `render.yaml` y usa el Deploy Hook: en el servicio de Render, *Settings → Deploy
 Hook* → copia la URL → en GitHub, *Settings → Secrets and variables → Actions* → crea el secreto
 `RENDER_DEPLOY_HOOK`. Desde entonces, cada push a `main` que pase pruebas, build y prueba de humo
 dispara el despliegue. Sin el secreto ese paso simplemente se omite.

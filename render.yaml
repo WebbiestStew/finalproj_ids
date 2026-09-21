@@ -7,9 +7,9 @@ services:
     dockerfilePath: ./Dockerfile
     plan: free
     healthCheckPath: /health
-    # false = solo se despliega cuando el pipeline de GitHub pasa y dispara el Deploy Hook
-    # (secreto RENDER_DEPLOY_HOOK). Ponlo en true si prefieres desplegar en cada push.
-    autoDeploy: false
+    # true = se vuelve a desplegar en cada push a la rama principal (lo más simple para una tarea).
+    # Con false solo despliega cuando el pipeline dispara el Deploy Hook (secreto RENDER_DEPLOY_HOOK).
+    autoDeploy: true
     envVars:
       - key: JWT_SECRET
         generateValue: true
