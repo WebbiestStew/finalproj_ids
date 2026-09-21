@@ -94,6 +94,8 @@ jobs:
       # resultado del quality gate y los hallazgos abiertos como reporte (artefacto + resumen).
       - name: Exportar reporte de SonarCloud
         if: ${{ env.SONAR_TOKEN != '' }}
+        env:
+          PR_NUMBER: ${{ github.event.number }}
         run: |
           set -euo pipefail
           api=https://sonarcloud.io/api
@@ -105,12 +107,17 @@ jobs:
             sleep 5
           done
           mkdir -p sonar-report
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            scope="pullRequest=$PR_NUMBER"
+          else
+            scope="branch=$GITHUB_REF_NAME"
+          fi
           metrics=bugs,vulnerabilities,code_smells,sqale_index,sqale_rating,reliability_rating,security_rating,coverage,duplicated_lines_density,ncloc,security_hotspots
-          curl -sf -u "$SONAR_TOKEN:" "$api/measures/component?component=$key&metricKeys=$metrics" > sonar-report/metricas.json
-          curl -sf -u "$SONAR_TOKEN:" "$api/qualitygates/project_status?projectKey=$key" > sonar-report/quality-gate.json
-          curl -sf -u "$SONAR_TOKEN:" "$api/issues/search?componentKeys=$key&resolved=false&ps=100" > sonar-report/hallazgos.json
+          curl -sf -u "$SONAR_TOKEN:" "$api/measures/component?component=$key&metricKeys=$metrics&$scope" > sonar-report/metricas.json
+          curl -sf -u "$SONAR_TOKEN:" "$api/qualitygates/project_status?projectKey=$key&$scope" > sonar-report/quality-gate.json
+          curl -sf -u "$SONAR_TOKEN:" "$api/issues/search?componentKeys=$key&resolved=false&ps=100&$scope" > sonar-report/hallazgos.json
           {
-            echo "## Reporte de SonarCloud ($key)"
+            echo "## Reporte de SonarCloud ($key, $scope)"
             echo
             echo "Quality gate: $(jq -r .projectStatus.status sonar-report/quality-gate.json)"
             echo
