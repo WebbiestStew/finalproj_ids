@@ -57,7 +57,7 @@ Para publicarlo en internet (Render gratis o Fly.io con datos persistentes) est�
 
 Si solo tienes cinco minutos, en este orden:
 
-1. **La app en línea** (el enlace va en la entrega): entra al catálogo, filtra por marca y abre una ficha.
+1. **La app en línea:** https://dauto-ym8c.onrender.com — entra al catálogo, filtra por marca y abre una ficha.
 2. **Inicia sesión como concesionaria** para ver el inventario y publicar un auto. Las cuentas
    de prueba van en el mensaje de entrega, no en el repo. En Render gratis el primer acceso
    tarda ~30 s (el servicio duerme) y los datos se reinician al reposar: es esperado.
