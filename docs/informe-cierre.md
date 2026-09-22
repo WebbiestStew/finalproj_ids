@@ -63,7 +63,7 @@ accesibilidad (`role="alert"`, `aria-invalid`, `aria-describedby`, `aria-pressed
    sobre 3 %) → pruebas con cobertura (falla bajo 80 %).
 2. **`frontend`**: `npm audit` → oxlint → pruebas con cobertura → build de producción.
 3. **`build-and-push`** (solo `main`, requiere los dos anteriores): imagen Docker (usuario no root) a GHCR.
-4. **`deploy-test-env`**: ejecuta la imagen publicada en un contenedor efímero y valida `/health` y un registro real.
+4. **`deploy-test-env`**: ejecuta la imagen publicada en un contenedor efímero y valida `/health`, el frontend, el catálogo y un registro y login reales.
 
 `.github/workflows/security-scan.yml` corre OWASP ZAP contra el servidor levantado y SonarCloud (con el secreto
 `SONAR_TOKEN`); este último job además exporta métricas, *quality gate* y hallazgos como reporte.
@@ -242,7 +242,7 @@ Conclusiones honestas:
 | Validar el requisito de 1 000 usuarios en Linux con rampa (k6 o autocannon en CI/staging) | 1 000 usuarios autenticados, p99 < 2 s, 0 errores; y login sostenido ≥ 50/s | 30-nov-2026 (Sprint 6) |
 | Reducir el costo del login: bcrypt nativo o Argon2 en hilos + escalado horizontal | ≥ 50 logins/s por instancia a costo equivalente a 12 | 19-oct-2026 |
 | Mover el JWT de `localStorage` a cookie `httpOnly` + `SameSite` + protección CSRF | El token no es legible desde JavaScript; pruebas de CSRF en CI | 19-oct-2026 |
-| Reescanear con ZAP (baseline → *full scan* autenticado) y cerrar el issue abierto | 0 alertas Alta/Media sobre `/api/auth/*` | 10-dic-2026 |
+| Ampliar ZAP de *baseline* (pasivo) a *full scan* autenticado, que ataca activamente los endpoints | 0 alertas Alta/Media sobre `/api/auth/*` y `/api/vehicles` | 10-dic-2026 |
 | Desplegar en un host persistente (Fly.io con volumen, o Render de pago con disco) y activar `RENDER_DEPLOY_HOOK` | URL de staging con uptime verificable; datos que sobreviven a un redespliegue (configuración ya lista en el repositorio) | 19-oct-2026 |
 | Pruebas end-to-end del flujo registro → panel (Playwright) en CI | Flujo completo en verde en cada PR; auditoría Lighthouse de accesibilidad ≥ 95 | 30-nov-2026 |
 | Carga de fotos reales del vehículo (almacenamiento de objetos + validación de tipo/tamaño) y reemplazo de la ilustración | Hasta 8 fotos por auto, ≤ 5 MB c/u, con pruebas de rechazo de archivos no permitidos | Sprint 2 (28-sep → 19-oct) |
